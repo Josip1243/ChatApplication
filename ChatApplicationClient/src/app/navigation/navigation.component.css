@@ -1,0 +1,32 @@
+.nav-container {
+    background-color: #484349;
+    margin-bottom: 30px;
+    box-shadow: 0 0 10px gray;
+}
+.nav-title {
+    text-align: center;
+    padding: 1.2em;
+    background-color: #484349;
+}
+.nav-title h2 {
+    margin: 0;
+    color: white;
+}
+.nav-container ul {
+    list-style-type: none;
+    display: flex;
+    justify-content: space-around;
+    background-color: lightblue;
+    padding: 20px;
+}
+.nav-container li {
+    padding: 1.3em;
+}
+.nav-container a {
+    text-decoration: none;
+    color: grey;
+}
+.nav-container li:hover {
+    background-color: green;
+    color: black;
+}
