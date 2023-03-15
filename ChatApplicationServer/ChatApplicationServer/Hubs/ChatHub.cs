@@ -1,4 +1,5 @@
 ﻿using ChatApplicationServer.Data;
+using ChatApplicationServer.HubModels;
 using ChatApplicationServer.Models;
 using Microsoft.AspNetCore.SignalR;
 
@@ -22,26 +23,33 @@ namespace ChatApplicationServer.Hubs
             await Clients.Group(userConnection.ChatRoom).SendAsync("ReceiveMessage", _botUser, $"{userConnection.Name} has joined.");
         }
 
-        public async Task Test(UserConnection inputUser)
+
+        public async Task Authorize(UserInfo userInfo)
         {
-            using (var ctx = context)
+            string currentSignalRId = Context.ConnectionId;
+            User? user = context.Users.Where(u => u.Username == userInfo.Username && u.Password == userInfo.Password).SingleOrDefault();
+
+            if (user != null)
             {
-
-                User user = ctx.Users.First(ctx=> ctx.Id == inputUser.Id);
-
-                try
+                Connection connection = new Connection()
                 {
-                    await ctx.SaveChangesAsync();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
+                    PersonId = user.Id,
+                    SignalRId = currentSignalRId,
+                    timeStamp = DateTime.Now
+                };
+
+                await context.Connections.AddAsync(connection);
+                context.SaveChanges();
+
+                await Clients.Caller.SendAsync("authMeResponseSuccess", user);
             }
-
-            string response = "Added new user!";
-            await Clients.Clients(this.Context.ConnectionId).SendAsync("serverResponse", response);
+            else
+            {
+                await Clients.Client(currentSignalRId).SendAsync("authMeResponseFail");
+            }
         }
+
+
     }
 }
  

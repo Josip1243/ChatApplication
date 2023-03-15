@@ -24,7 +24,6 @@ builder.Services.AddDbContextPool<ChatContext>( options =>
 );
 
 
-
 var app = builder.Build();
 
 

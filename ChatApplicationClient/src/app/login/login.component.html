@@ -2,12 +2,12 @@
 <div class="login-container">
     <h2>Login</h2>
 
-    <form>
-        <label>Username</label><br>
-        <input type="text"><br><br>
-        <label>Chat Room</label><br>
-        <input type="text"><br><br>
-    </form>
+    <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)" class="loginForm">
+        <label for="username">Username</label><br>
+        <input type="username" id="username" class="form-control" ngModel name="username"><br><br>
+        <label>Password</label><br>
+        <input type="password" id="password" class="form-control" ngModel name="password"><br><br>
 
-    <button>Login</button>
+        <button class="btn btn-primary" type="submit" [disabled]="!authForm.valid">Login</button>
+    </form>
 </div>

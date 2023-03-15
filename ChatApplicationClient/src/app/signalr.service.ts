@@ -12,6 +12,8 @@ export class SignalrService {
 
   hubConnection!: signalR.HubConnection;
 
+  name!: String;
+
   startConnection = () => {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('https://localhost:7038/chat', {
@@ -29,12 +31,13 @@ export class SignalrService {
       .catch(err => console.log('Error ocurred while connecting: ' + err))
   }
 
-  askServer() {
-    this.hubConnection.invoke("Test", )
-      .catch(err => console.error(err));
-  }
+  
+  // askServer() {
+  //   this.hubConnection.invoke("Test", )
+  //     .catch(err => console.error(err));
+  // }
 
-  serverListener() {
-    this.hubConnection.on('serverResponse', (message) => console.log(message));
-  }
+  // serverListener() {
+  //   this.hubConnection.on('serverResponse', (message) => console.log(message));
+  // }
 }

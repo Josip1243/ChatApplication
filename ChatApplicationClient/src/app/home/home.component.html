@@ -1,21 +1,11 @@
 <div class="active-users">
     <h3>Active users</h3>
     <div class="users-container">
-        <div class="user">
-            <p>Josip</p>
+
+        <div *ngFor="let user of getUsers()" class="user">
+            <p>{{user.username}}</p>
         </div>
 
-        <div class="user">
-            <p>Pero</p>
-        </div>
-
-        <div class="user">
-            <p>Marko</p>
-        </div>
-
-        <div class="user">
-            <p>Ivan</p>
-        </div>
     </div>
 </div>
 
@@ -28,20 +18,20 @@
             <button>Ucitaj vise...</button>
         </div>
 
-        <div *ngFor="let msg of msgs; let i = index" class="message" [ngClass]="isUser(msg.id) == true ? 'message-user' : 'message-other'">
-            <div *ngIf="false" class="message-info message-info-name">
-                <header>{{msg.id}}</header>
+        <div *ngFor="let msg of getMessages(); let i = index" class="message" [ngClass]="isUser(msg.userId) == true ? 'message-user' : 'message-other'">
+            <div *ngIf="!isUser(msg.userId)" class="message-info message-info-name">
+                <header>{{msg.username}}</header>
             </div>
             <div class="message-text" [ngClass]="{'first-message': true}">
                 <p>{{msg.text}}</p>
             </div>
             <div class="message-info message-info-time">
-                <p>16:00</p>
+                <p>{{msg.timestamp | date:'shortTime'}}</p>
             </div>
         </div>
 
 
-        <div  class="message" [ngClass]="true == true ? 'message-user' : 'message-other'">
+        <!-- <div  class="message" [ngClass]="true == true ? 'message-user' : 'message-other'">
             <div *ngIf="false" class="message-info message-info-name">
                 <header>Josip</header>
             </div>
@@ -51,7 +41,7 @@
             <div class="message-info message-info-time">
                 <p>16:00</p>
             </div>
-        </div>
+        </div> -->
         
     </div>
     
