@@ -30,14 +30,4 @@ export class SignalrService {
       })
       .catch(err => console.log('Error ocurred while connecting: ' + err))
   }
-
-  
-  // askServer() {
-  //   this.hubConnection.invoke("Test", )
-  //     .catch(err => console.error(err));
-  // }
-
-  // serverListener() {
-  //   this.hubConnection.on('serverResponse', (message) => console.log(message));
-  // }
 }

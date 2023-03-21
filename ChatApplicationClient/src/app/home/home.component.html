@@ -2,9 +2,9 @@
     <h3>Active users</h3>
     <div class="users-container">
 
-        <div *ngFor="let user of getUsers()" class="user">
-            <p>{{user.username}}</p>
-        </div>
+        <ul *ngFor="let user of onlineUsers" class="user">
+            <li>{{user.username}}</li>
+        </ul>
 
     </div>
 </div>

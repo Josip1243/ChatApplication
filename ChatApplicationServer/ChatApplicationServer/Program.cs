@@ -11,7 +11,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAllHeaders", builder => builder
         .AllowAnyOrigin()
         .AllowAnyMethod()
-        .AllowAnyHeader());
+        .AllowAnyHeader()
+        );
 });
 
 builder.Services.AddSignalR(options =>
@@ -43,6 +44,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseCors("AllowAllHeaders");
+
 
 app.UseEndpoints(endpoints =>
 {

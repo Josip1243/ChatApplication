@@ -198,3 +198,4 @@ D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\obj\Debu
 D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\obj\Debug\net6.0\ChatApplicationServer.csproj.CopyComplete
 D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\obj\Debug\net6.0\ChatApplicationServer.genruntimeconfig.cache
 D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\obj\Debug\net6.0\ref\ChatApplicationServer.dll
+D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\bin\Debug\net6.0\AutoMapper.dll

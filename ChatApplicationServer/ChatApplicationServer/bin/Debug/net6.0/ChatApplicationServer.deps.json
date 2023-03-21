@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v6.0": {
       "ChatApplicationServer/1.0.0": {
         "dependencies": {
+          "AutoMapper": "12.0.1",
           "EntityFramework": "6.4.4",
           "Microsoft.AspNet.SignalR": "2.4.3",
           "Microsoft.EntityFrameworkCore.SqlServer": "7.0.3",
@@ -17,6 +18,17 @@
         },
         "runtime": {
           "ChatApplicationServer.dll": {}
+        }
+      },
+      "AutoMapper/12.0.1": {
+        "dependencies": {
+          "Microsoft.CSharp": "4.7.0"
+        },
+        "runtime": {
+          "lib/netstandard2.1/AutoMapper.dll": {
+            "assemblyVersion": "12.0.0.0",
+            "fileVersion": "12.0.1.0"
+          }
         }
       },
       "Azure.Core/1.24.0": {
@@ -932,6 +944,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "AutoMapper/12.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hvV62vl6Hp/WfQ24yzo3Co9+OPl8wH8hApwVtgWpiAynVJkUcs7xvehnSftawL8Pe8FrPffBRM3hwzLQqWDNjA==",
+      "path": "automapper/12.0.1",
+      "hashPath": "automapper.12.0.1.nupkg.sha512"
     },
     "Azure.Core/1.24.0": {
       "type": "package",

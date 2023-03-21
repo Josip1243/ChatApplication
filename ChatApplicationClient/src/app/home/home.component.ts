@@ -17,37 +17,40 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+
     this.userOnListener();
     this.userOffListener();
     this.getOnlineUsersLis();
+
+    setTimeout(() => {
+      this.getOnlineUsersInv();
+    }, 1000);
   }
 
   ngOnDestroy(): void {
     this.logOut();
   }
 
-
   userOnListener(): void {
     this.signalRService.hubConnection.on("userOn", (newUser: User) => {
-      console.log("new user added");
       this.onlineUsers.push(newUser);
     });
   }
-
   userOffListener(): void {
     this.signalRService.hubConnection.on("userOff", (userId: number) => {
-      this.onlineUsers.filter(u => u.id != userId);
+      this.onlineUsers = [...this.onlineUsers.filter(u => u.id != userId)];
     });
   }
 
   getOnlineUsersInv(): void {
-    this.signalRService.hubConnection.invoke("getOnlineUsers")
+    this.signalRService.hubConnection.invoke("GetOnlineUsers")
     .catch(err => console.log(err));
   }
 
   getOnlineUsersLis(): void {
     this.signalRService.hubConnection.on("getOnlineUsersResponse", (tempOnlineUsers: Array<User>) => {
-      this.onlineUsers = [...this.onlineUsers];
+      this.onlineUsers = tempOnlineUsers;
+      console.log("Got online users");
     });
   }
 

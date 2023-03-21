@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "QXVKhtVfDoRSyGj7s/NH7wr2D+OxcpOf5+/JfT7x81bJz0ClXOykcEK76RoDcGqaQA86s9cEFRt6Ch7xLr6dhA==",
+  "dgSpecHash": "TEfyjoJZrNaY4yOuyoo3vdaxUY7N9R7t1aws0p47oecBiKgHDdd6OYLS+AJQ2NCcizZTTe3ISWA5o0R5B5LEAA==",
   "success": true,
   "projectFilePath": "D:\\Fakultet\\ChatApplication\\ChatApplicationServer\\ChatApplicationServer\\ChatApplicationServer.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\josip\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\josip\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\josip\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
     "C:\\Users\\josip\\.nuget\\packages\\entityframework\\6.4.4\\entityframework.6.4.4.nupkg.sha512",

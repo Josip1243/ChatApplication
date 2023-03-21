@@ -14,14 +14,23 @@ export class AppComponent implements OnInit {
   constructor(public signalrService:SignalrService, public router: Router) {}
 
   ngOnInit(): void {
-    this.signalrService.startConnection();
-
-    // setTimeout(() => {
-    //   this.signalrService.serverListener();
-    // }, 2000);
+    this.establishConnection(this.signalrService);
   }
 
-  // sendMessage() {
-  //   this.signalrService.askServer();
-  // }
+  maxRepetition: number = 0;
+
+  establishConnection(signalrService:SignalrService) {
+    this.maxRepetition = this.maxRepetition + 1;
+    signalrService.startConnection();
+
+    if(this.maxRepetition < 5){
+      setTimeout( () => {
+
+        if (signalrService.hubConnection.state === HubConnectionState.Connected) {
+          return;
+        }
+        this.establishConnection(signalrService);
+      }, this.maxRepetition*1000)
+    }
+  }
 }

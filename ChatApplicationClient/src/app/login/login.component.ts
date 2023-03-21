@@ -3,6 +3,7 @@ import { SignalrService } from './../signalr.service';
 import { Router } from '@angular/router';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { AuthService } from './auth.service';
 
 @Component({
   selector: 'app-login',
@@ -11,11 +12,11 @@ import { NgForm } from '@angular/forms';
 })
 
 export class LoginComponent implements OnInit, OnDestroy {
-  constructor(public router: Router, private signalRService: SignalrService) {}
+  constructor(public signalRService: SignalrService, public authService: AuthService) {}
 
   ngOnInit(): void {
-    this.authMeListenerSucces();
-    this.authMeListenerFail();
+    this.authService.authMeListenerSuccess();
+    this.authService.authMeListenerFail();
   }
 
   ngOnDestroy(): void {
@@ -28,33 +29,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log("Sending credentials to backend");
-
-    this.authMe(form.value.username, form.value.password);
+    this.authService.authMe(form.value.username, form.value.password);
     form.reset();
-  }
-
-  private authMeListenerSucces() {
-    this.signalRService.hubConnection.on("authMeResponseSuccess", (userInfo: any) => {
-      console.log(userInfo);
-
-      this.signalRService.name = userInfo.name;
-      console.log("Successfully logged in!");
-      this.router.navigateByUrl("/home");
-    })
-  }
-
-  private authMeListenerFail() {
-    this.signalRService.hubConnection.on("authMeResponseFail", () => {
-      console.error("Wrong credentials!");
-    })
-  }
-
-  async authMe(username: String, password: String){
-    let userInfo = {username: username, password: password}
-
-    console.log("Loging in atempt...");
-    await this.signalRService.hubConnection.invoke("Authorize", userInfo)
-    .catch(err => console.log(err));
   }
 }
