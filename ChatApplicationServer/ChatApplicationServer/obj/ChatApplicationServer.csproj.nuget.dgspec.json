@@ -1,28 +1,28 @@
 {
   "format": 1,
   "restore": {
-    "D:\\jradman\\Projects\\ChatApplication\\ChatApplicationServer\\ChatApplicationServer\\ChatApplicationServer.csproj": {}
+    "D:\\Fakultet\\ChatApplication\\ChatApplicationServer\\ChatApplicationServer\\ChatApplicationServer.csproj": {}
   },
   "projects": {
-    "D:\\jradman\\Projects\\ChatApplication\\ChatApplicationServer\\ChatApplicationServer\\ChatApplicationServer.csproj": {
+    "D:\\Fakultet\\ChatApplication\\ChatApplicationServer\\ChatApplicationServer\\ChatApplicationServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\jradman\\Projects\\ChatApplication\\ChatApplicationServer\\ChatApplicationServer\\ChatApplicationServer.csproj",
+        "projectUniqueName": "D:\\Fakultet\\ChatApplication\\ChatApplicationServer\\ChatApplicationServer\\ChatApplicationServer.csproj",
         "projectName": "ChatApplicationServer",
-        "projectPath": "D:\\jradman\\Projects\\ChatApplication\\ChatApplicationServer\\ChatApplicationServer\\ChatApplicationServer.csproj",
-        "packagesPath": "C:\\Users\\jradman\\.nuget\\packages\\",
-        "outputPath": "D:\\jradman\\Projects\\ChatApplication\\ChatApplicationServer\\ChatApplicationServer\\obj\\",
+        "projectPath": "D:\\Fakultet\\ChatApplication\\ChatApplicationServer\\ChatApplicationServer\\ChatApplicationServer.csproj",
+        "packagesPath": "C:\\Users\\josip\\.nuget\\packages\\",
+        "outputPath": "D:\\Fakultet\\ChatApplication\\ChatApplicationServer\\ChatApplicationServer\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\jradman\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\josip\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
-          "https://api.nuget.org/v3/index.json": {},
-          "https://artifactory.fina.hr/artifactory/api/nuget/nuget-local": {}
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
@@ -58,6 +58,10 @@
               "target": "Package",
               "version": "[7.0.3, )"
             },
+            "Optional": {
+              "target": "Package",
+              "version": "[4.0.0, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.5.0, )"
@@ -82,7 +86,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.402\\RuntimeIdentifierGraph.json"
         }
       }
     }

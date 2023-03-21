@@ -28,6 +28,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
+    console.log("Sending credentials to backend");
+
     this.authMe(form.value.username, form.value.password);
     form.reset();
   }

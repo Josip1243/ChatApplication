@@ -1,19 +1,21 @@
-﻿using ChatApplicationServer.Data;
-using ChatApplicationServer.HubModels;
-using ChatApplicationServer.Models;
+﻿using ChatApplicationServer.Models;
 using Microsoft.AspNetCore.SignalR;
+using ChatApplicationServer.Services;
+using Optional.Unsafe;
 
 namespace ChatApplicationServer.Hubs
 {
     public class ChatHub : Hub
     {
-        ChatContext context;
         private readonly string _botUser;
+        private IUserService _userService;
+        private IConnectionService _connectionService;
 
-        public ChatHub(ChatContext options) 
+        public ChatHub(IUserService userService, IConnectionService connectionService) 
         { 
-            this.context = options;
             _botUser = "Bot";
+            _userService = userService;
+            _connectionService = connectionService;
         }
 
         public async Task JoinRoom(UserConnection userConnection)
@@ -23,23 +25,20 @@ namespace ChatApplicationServer.Hubs
             await Clients.Group(userConnection.ChatRoom).SendAsync("ReceiveMessage", _botUser, $"{userConnection.Name} has joined.");
         }
 
-
-        public async Task Authorize(UserInfo userInfo)
+        public async Task Authorize(UserCredentials userCredentials)
         {
             string currentSignalRId = Context.ConnectionId;
-            User? user = context.Users.Where(u => u.Username == userInfo.Username && u.Password == userInfo.Password).SingleOrDefault();
+            var user = _userService.GetUser(userCredentials);
 
-            if (user != null)
+            if (user.HasValue)
             {
                 Connection connection = new Connection()
                 {
-                    PersonId = user.Id,
+                    PersonId = user.ValueOrFailure().Id,
                     SignalRId = currentSignalRId,
                     timeStamp = DateTime.Now
                 };
-
-                await context.Connections.AddAsync(connection);
-                context.SaveChanges();
+                _connectionService.AddConnection(connection);
 
                 await Clients.Caller.SendAsync("authMeResponseSuccess", user);
             }
@@ -49,7 +48,12 @@ namespace ChatApplicationServer.Hubs
             }
         }
 
+        public async Task LogOut()
+        {
+            string currentSignalRId = Context.ConnectionId;
 
+            _connectionService.RemoveConnection(currentSignalRId);
+        }
     }
 }
  

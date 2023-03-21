@@ -1,6 +1,7 @@
-using ChatApplicationServer.Data;
+using ChatApplicationServer.Repository;
 using ChatApplicationServer.Hubs;
 using Microsoft.EntityFrameworkCore;
+using ChatApplicationServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,13 @@ builder.Services.AddControllers();
 builder.Services.AddDbContextPool<ChatContext>( options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnectionString"))
 );
+
+var services = builder.Services;
+
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IConnectionService, ConnectionService>();
+builder.Services.AddSingleton<UserRepositoryMock, UserRepositoryMock>();
+builder.Services.AddSingleton<ConnectionsRepositoryMock, ConnectionsRepositoryMock>();
 
 
 var app = builder.Build();

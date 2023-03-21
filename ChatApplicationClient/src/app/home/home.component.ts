@@ -1,40 +1,29 @@
 import { SignalrService } from './../signalr.service';
-import { DataService } from './../services/data.service';
 import { User } from './../shared/models/user.model';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Message } from '../shared/models/message.model';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   
   onlineUsers: Array<User> = [];
 
-  constructor(private http: HttpClient, private dataService: DataService, private signalRService: SignalrService){
+  constructor(private http: HttpClient, private signalRService: SignalrService){
   }
 
   ngOnInit(): void {
-
     this.userOnListener();
     this.userOffListener();
     this.getOnlineUsersLis();
+  }
 
-
-    // this.dataService.getUsers().subscribe(
-    //   data => {
-    //      this.items.push(data);
-    //      console.log("AAAAAAA USPIO");
-    //    },
-    //    error => {
-    //      console.log("ERROOOOOOR");
-    //   }
-    // );
+  ngOnDestroy(): void {
+    this.logOut();
   }
 
 
@@ -62,7 +51,10 @@ export class HomeComponent implements OnInit {
     });
   }
 
-
+  async logOut() {
+    await this.signalRService.hubConnection.invoke("LogOut")
+    .catch(err => console.log(err));
+  }
 
 
 
