@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "TEfyjoJZrNaY4yOuyoo3vdaxUY7N9R7t1aws0p47oecBiKgHDdd6OYLS+AJQ2NCcizZTTe3ISWA5o0R5B5LEAA==",
+  "dgSpecHash": "tHndqYhsy+1U4ucAhToV3Qach+/BHlxWWjq21FwkKCTUQ4SonEjCUz4x769YsqsIE2tjxQwcuzVKuuB8tsL6uQ==",
   "success": true,
   "projectFilePath": "D:\\Fakultet\\ChatApplication\\ChatApplicationServer\\ChatApplicationServer\\ChatApplicationServer.csproj",
   "expectedPackageFiles": [
@@ -14,6 +14,7 @@
     "C:\\Users\\josip\\.nuget\\packages\\microsoft.aspnet.signalr.core\\2.4.3\\microsoft.aspnet.signalr.core.2.4.3.nupkg.sha512",
     "C:\\Users\\josip\\.nuget\\packages\\microsoft.aspnet.signalr.js\\2.4.3\\microsoft.aspnet.signalr.js.2.4.3.nupkg.sha512",
     "C:\\Users\\josip\\.nuget\\packages\\microsoft.aspnet.signalr.systemweb\\2.4.3\\microsoft.aspnet.signalr.systemweb.2.4.3.nupkg.sha512",
+    "C:\\Users\\josip\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\6.0.16\\microsoft.aspnetcore.authentication.jwtbearer.6.0.16.nupkg.sha512",
     "C:\\Users\\josip\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
     "C:\\Users\\josip\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\josip\\.nuget\\packages\\microsoft.data.sqlclient\\5.0.1\\microsoft.data.sqlclient.5.0.1.nupkg.sha512",

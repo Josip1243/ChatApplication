@@ -199,3 +199,4 @@ D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\obj\Debu
 D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\obj\Debug\net6.0\ChatApplicationServer.genruntimeconfig.cache
 D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\obj\Debug\net6.0\ref\ChatApplicationServer.dll
 D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\bin\Debug\net6.0\AutoMapper.dll
+D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
