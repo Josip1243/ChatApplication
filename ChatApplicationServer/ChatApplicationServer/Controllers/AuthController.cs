@@ -1,11 +1,15 @@
-﻿using ChatApplicationServer.DTO;
+﻿using Azure;
+using Azure.Core;
+using ChatApplicationServer.DTO;
 using ChatApplicationServer.Models;
+using ChatApplicationServer.Repository;
 using ChatApplicationServer.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Optional.Unsafe;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 
 namespace ChatApplicationServer.Controllers
 {
@@ -16,28 +20,27 @@ namespace ChatApplicationServer.Controllers
         private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
+        private readonly UserRepositoryMock _userRepositoryMock;
 
-        public AuthController(IConfiguration configuration, IUserService userService, IAuthService authService)
+        public AuthController(IConfiguration configuration, IUserService userService, IAuthService authService, UserRepositoryMock userRepositoryMock)
         {
             _configuration = configuration;
             _userService = userService;
             _authService = authService;
+            _userRepositoryMock = userRepositoryMock;
         }
 
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserCredentials request)
         {
-            _authService.CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
-            User user = new()
+            if (_userRepositoryMock.GetUser(request.Username).HasValue)
             {
-                Username = request.Username,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt
-            };
+                return BadRequest("User already exists.");
+            }
 
-            if (_authService.RegisterUser(user))
+            if (_authService.RegisterUser(request))
             {
-                return Ok(user);
+                return Ok();
             }
             return BadRequest("Registration failed.");
         }
@@ -55,37 +58,42 @@ namespace ChatApplicationServer.Controllers
                     return BadRequest("Wrong username or password.");
                 }
                 string token = _authService.CreateToken(user.ValueOrDefault());
-                var refreshToken = _authService.GenerateRefreshToken();
-                _authService.SetRefreshToken(refreshToken, Response, user.ValueOrDefault());
-                return Ok(token);
+                var refreshToken = _authService.GenerateRefreshToken(user.ValueOrFailure());
+
+                //_authService.SetRefreshToken(refreshToken, Response, user.ValueOrDefault());
+
+                return Ok(new TokenDTO()
+                {
+                    AccessToken = token,
+                    RefreshToken = refreshToken.Token
+                });
             }
-            return BadRequest("User does not exist.");
+            return BadRequest("Wrong username or password.");
         }
 
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<string>> RefreshToken(string jwtToken)
+        public async Task<ActionResult<string>> RefreshToken(TokenDTO tokenDto)
         {
-            var refreshToken = Request.Cookies["refreshToken"];
-            var token = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
-            string username = token.Claims.First(c => c.Type == "user").Value;
+            if (tokenDto is null)
+                return BadRequest("Invalid request.");
 
-            // Dodati if has value
-            var user = _userService.GetUser(username).ValueOrDefault();
+            var accessToken = tokenDto.AccessToken;
+            var refreshToken = tokenDto.RefreshToken;
+            var principle = _authService.GetPrincipleFromToken(accessToken);
+            var username = principle.Identity.Name;
+            var user = _userRepositoryMock.GetUser(username).ValueOrFailure();
 
-            if (!user.RefreshToken.Equals(refreshToken))
+            if (user is null || user.RefreshToken != refreshToken || user.TokenExpires <= DateTime.Now)
+                return BadRequest("Invalid Request");
+
+            var newAccessToken = _authService.CreateToken(user);
+            var newRefreshToken = _authService.GenerateRefreshToken(user);
+
+            return Ok(new TokenDTO()
             {
-                return Unauthorized("Invalid Refresh Token.");
-            }
-            else if (user.TokenExpires < DateTime.Now)
-            {
-                return Unauthorized("Token expired.");
-            }
-
-            string newToken = _authService.CreateToken(user);
-            var newRefreshToken = _authService.GenerateRefreshToken();
-            _authService.SetRefreshToken(newRefreshToken, Response, user);
-
-            return Ok(token);
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshToken.Token,
+            });
         }
 
         [HttpGet("GetMe"), Authorize]

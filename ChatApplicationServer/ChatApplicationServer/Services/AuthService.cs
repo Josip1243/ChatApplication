@@ -1,4 +1,5 @@
-﻿using ChatApplicationServer.DTO;
+﻿using Azure.Core;
+using ChatApplicationServer.DTO;
 using ChatApplicationServer.Models;
 using ChatApplicationServer.Repository;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace ChatApplicationServer.Services
 {
@@ -20,12 +22,16 @@ namespace ChatApplicationServer.Services
             _userRepositoryMock = userRepositoryMock;
         }
 
-        public bool RegisterUser(User user)
+        public bool RegisterUser(UserCredentials request)
         {
-            if (_userRepositoryMock.GetUser(user.Username).HasValue)
+            CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            User user = new()
             {
-                return false;
-            }
+                Username = request.Username,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt
+            };
+
             return _userRepositoryMock.RegisterUser(user);
         }
 
@@ -52,17 +58,16 @@ namespace ChatApplicationServer.Services
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, "Admin")
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
                 _configuration.GetSection("Auth:Token").Value));
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(30),
+                expires: DateTime.Now.AddSeconds(10),
                 signingCredentials: creds);
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
@@ -70,32 +75,43 @@ namespace ChatApplicationServer.Services
             return jwt;
         }
 
-        public RefreshToken GenerateRefreshToken()
+        public RefreshToken GenerateRefreshToken(User user)
         {
             var refreshToken = new RefreshToken()
             {
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-                Expires = DateTime.Now.AddMinutes(30),
+                Expires = DateTime.Now.AddSeconds(100),
                 Created = DateTime.Now
             };
-
-            return refreshToken;
-        }
-
-        public void SetRefreshToken(RefreshToken refreshToken, HttpResponse response, User user)
-        {
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Expires = refreshToken.Expires
-            };
-            response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
 
             user.RefreshToken = refreshToken.Token;
             user.TokenCreated = refreshToken.Created;
             user.TokenExpires = refreshToken.Expires;
 
             _userRepositoryMock.UpdateUser(user);
+
+            return refreshToken;
+        }
+
+        public ClaimsPrincipal GetPrincipleFromToken(string token)
+        {
+            var key = Encoding.ASCII.GetBytes("my top secret key");
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateLifetime = false
+            };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken securityToken;
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("This is Invalid Token");
+            return principal;
+
         }
     }
 }
