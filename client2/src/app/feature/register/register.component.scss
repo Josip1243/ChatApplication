@@ -1,0 +1,17 @@
+form {
+    background-color: #B2DFDB;
+    padding: 30px;
+    width: 400px;
+    text-align: center;
+    margin: 200px auto;
+    align-items: center;
+    border-radius: 15px;
+}
+mat-form-field mat-icon {
+    :hover {
+        cursor: pointer;
+    }
+}
+mat-error {
+    margin-bottom: 10px;
+}

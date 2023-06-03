@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { SignalrService } from './signalr.service';
+import { SignalrService } from './core/services/signalr.service';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HubConnectionState } from '@microsoft/signalr/dist/esm/HubConnection';

@@ -1,0 +1,35 @@
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <h2>
+        Register:
+    </h2>
+    <div>
+        <mat-form-field appearance="fill">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" id="username" [(ngModel)]="user.username">
+            <mat-icon matSuffix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Password</mat-label>
+            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" id="password"  [(ngModel)]="user.password">
+            <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword">
+                <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Repeat password</mat-label>
+            <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword" id="confirmPassword">
+            <button type="button" mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideConfirmPassword">
+                <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+            <mat-error *ngIf="registerForm.hasError('passwordMismatch')">Passwords must match.</mat-error>
+        </mat-form-field>
+
+        <mat-error *ngIf="errorMessage">{{errorMessage}}</mat-error>
+
+        <div><a href="login">Already have account? Login here</a></div>
+    </div>
+    <br><br>
+    <button mat-raised-button>Register</button>
+</form>
