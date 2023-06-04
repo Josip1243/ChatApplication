@@ -1,0 +1,49 @@
+<div class="chat">
+    <div class="chat-name">
+        <h3>Chat name</h3>
+    </div>
+    <div class="chat-body">
+        <div *ngIf="true" class="more-button-wrapper">
+            <button>Ucitaj vise...</button>
+        </div>
+
+        <div *ngFor="let msg of msgs; let i = index" class="message message-other">
+            <div class="message-info message-info-name">
+                <span>{{msg.username}}</span>
+            </div>
+            <div class="message-text">
+                <p>{{msg.text}}</p>
+            </div>
+            <div class="message-info message-info-time">
+                <p>{{msg.timestamp | date:'shortTime'}}</p>
+            </div>
+        </div>
+
+
+        <div  class="message" [ngClass]="true != true ? 'message-user' : 'message-other'">
+            <div *ngIf="true" class="message-info message-info-name">
+                <span>Josip</span>
+            </div>
+            <div class="message-text" [ngClass]="{'first-message': true}">
+                <p>Test message</p>
+            </div>
+            <div class="message-info message-info-time">
+                <p>16:00</p>
+            </div>
+        </div>
+        
+    </div>
+    
+
+    <div class="chat-input">
+        <div class="chat-input-info">
+            <p>Poruka:</p>
+        </div>
+        <div class="chat-input-text">
+            <input type="text">
+        </div>
+        <div class="chat-input-button">
+            <button>Send</button>
+        </div>
+    </div>
+</div>

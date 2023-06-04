@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TokenDTO } from 'src/app/shared/models/tokenDTO.model';
+import { ChatComponent } from '../chat/chat.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ChatComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })

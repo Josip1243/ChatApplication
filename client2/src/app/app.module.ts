@@ -12,7 +12,7 @@ import { NgToastModule } from 'ng-angular-popup';
 
 @NgModule({
     declarations: [
-        AppComponent
+        AppComponent,
     ],
     providers: [
         {
