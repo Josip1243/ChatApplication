@@ -1,12 +1,25 @@
 export class Message {
-    id!: number;
+    Id!: number;
     userId!: number;
     username!: string;
-    text!: string;
-    timestamp!: Date;
+    chatId!: number;
+    content!: string;
+    sentAt!: Date;
 }
 
 export class User {
     id!: number;
     username!: string;
+}
+
+export class ChatNameDTO {
+    id!: number;
+    name!: string;
+}
+
+
+export class ChatDTO {
+    id!: number;
+    name!: string;
+    messages!: Message[];
 }

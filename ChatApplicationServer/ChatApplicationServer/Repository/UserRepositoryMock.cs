@@ -33,6 +33,7 @@ namespace ChatApplicationServer.Repository
 
         public bool RegisterUser(User user)
         {
+            user.Id = users.Count() + 1;
             users.Add(user);
             return true;
         }

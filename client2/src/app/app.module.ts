@@ -5,8 +5,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NavbarComponent } from "./shared/components/navbar/navbar.component";
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { AuthInterceptor } from './core/services/auth.interceptor';
+import { HttpClientModule } from '@angular/common/http';
+import { httpInterceptorProviders } from './core/services/auth.interceptor';
 import { AuthGuard } from './core/services/auth.guard';
 import { NgToastModule } from 'ng-angular-popup';
 
@@ -15,11 +15,7 @@ import { NgToastModule } from 'ng-angular-popup';
         AppComponent,
     ],
     providers: [
-        {
-            provide: HTTP_INTERCEPTORS,
-            useClass: AuthInterceptor,
-            multi: true
-        },
+        httpInterceptorProviders,
         AuthGuard
     ],
     bootstrap: [AppComponent],

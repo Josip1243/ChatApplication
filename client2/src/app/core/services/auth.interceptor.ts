@@ -1,6 +1,6 @@
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
+import { HTTP_INTERCEPTORS, HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, catchError, switchMap, throwError } from "rxjs";
+import { Observable, catchError, switchMap, throwError, EMPTY, BehaviorSubject, filter, take } from "rxjs";
 import { AuthService } from "./auth.service";
 import { Router } from "@angular/router";
 import { TokenDTO } from "src/app/shared/models/tokenDTO.model";
@@ -8,49 +8,79 @@ import { TokenDTO } from "src/app/shared/models/tokenDTO.model";
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-    constructor(private authService: AuthService, private router: Router) {}
+  private isRefreshing = false;
+  private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  
+  constructor(private authService: AuthService, private router: Router) {}
 
-    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        const token = this.authService.getToken();
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const accessToken = this.authService.getAccessToken();
 
-        if (token) {
-            req = req.clone({
-                setHeaders: { Authorization: `Bearer ${token}` }
-            });
+    debugger;
+
+    if (accessToken) {
+        request = request.clone({
+          setHeaders: { Authorization: `Bearer ${accessToken}` }
+      });
+    }
+    return next.handle(request).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error instanceof HttpErrorResponse && 
+          error.status === 401 &&
+          !request.url.includes('login')) {
+          return this.handle401Error(request, next);
         }
-        return next.handle(req).pipe(
-          catchError((err:any) => {
-            if (err instanceof HttpErrorResponse){
-              if (err.status === 401) {
-                debugger;
+        return throwError(() => new Error(error.error));
+      })
+    );    
+  }
 
-                let tokenDTO = new TokenDTO();
-                tokenDTO.accessToken = this.authService.getToken()!;
-                tokenDTO.refreshToken = this.authService.getRefreshToken()!;
+  private handle401Error(request: HttpRequest<any>, next: HttpHandler) {
 
-                return this.authService.refreshToken(tokenDTO)
-                  .pipe(
-                    switchMap((data:TokenDTO)=>{
-                      this.authService.storeRefreshToken(data.refreshToken);
-                      this.authService.storeToken(data.accessToken);
-                      req = req.clone({
-                        setHeaders: {Authorization:`Bearer ${data.accessToken}`}  // "Bearer "+myToken
-                      })
-                      return next.handle(req);
-                    }),
-                    catchError((err)=>{
-                      return throwError(()=>{
-                        console.log("Token is expired, Please Login again");
-                        this.authService.logout('login');
-                      })
-                    })
-                  )
-              }
-              console.log(err);
-              return throwError(() => new Error(err.error))
-            }
-            return throwError(() => new Error("Unexpected error occured."))
+    debugger;
+
+    if (!this.isRefreshing) {
+      this.isRefreshing = true;
+      this.refreshTokenSubject.next(null);
+      
+      let tokenDTO = new TokenDTO();
+      tokenDTO.accessToken = this.authService.getAccessToken()!;
+      tokenDTO.refreshToken = this.authService.getRefreshToken()!;
+
+      if (tokenDTO.refreshToken) {
+        return this.authService.refreshToken(tokenDTO).pipe(
+          switchMap((token: TokenDTO) => {
+            this.authService.storeRefreshToken(token.refreshToken);
+            this.authService.storeAccessToken(token.accessToken);
+            this.refreshTokenSubject.next(token.accessToken);
+            
+            this.isRefreshing = false;
+            
+            return next.handle(this.addTokenHeader(request, token.accessToken));
+          }),
+          catchError((err) => {
+            this.isRefreshing = false;
+            this.authService.logout('login');
+            return throwError(() => new Error(err));
           })
         );
+      }
     }
+
+    return this.refreshTokenSubject.pipe(
+      filter(token => token != null),
+      take(1),
+      switchMap((token) => next.handle(this.addTokenHeader(request, token)))
+    );
+  }
+
+    private addTokenHeader(request: HttpRequest<any>, token: string) {
+      return request.clone({
+        setHeaders: { Authorization: `Bearer ${token}` }
+    });
+  }
 }
+
+export const httpInterceptorProviders = [
+  { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+];

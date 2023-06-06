@@ -42,8 +42,11 @@ export class LoginComponent implements OnInit {
       this.authService.login(this.user)
       .subscribe({
          next: (tokenDTO) => {
+
+          debugger;
+
           this.loginForm.reset();
-          this.authService.storeToken(tokenDTO.accessToken)
+          this.authService.storeAccessToken(tokenDTO.accessToken)
           this.authService.storeRefreshToken(tokenDTO.refreshToken)
           this.router.navigateByUrl('home');
         },

@@ -7,21 +7,24 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { UsersComponent } from "../../../feature/chat/chat.component";
 
 
 @Component({
-  selector: 'app-navbar',
-  standalone: true,
-  imports: [
-    CommonModule, 
-    MatSidenavModule, 
-    MatToolbarModule, 
-    MatIconModule, 
-    MatButtonModule,
-    MatMenuModule,
-    AppRoutingModule],
-  templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss']
+    selector: 'app-navbar',
+    standalone: true,
+    templateUrl: './navbar.component.html',
+    styleUrls: ['./navbar.component.scss'],
+    imports: [
+        CommonModule,
+        MatSidenavModule,
+        MatToolbarModule,
+        MatIconModule,
+        MatButtonModule,
+        MatMenuModule,
+        AppRoutingModule,
+        UsersComponent
+    ]
 })
 export class NavbarComponent implements OnInit{
   opened!: boolean;

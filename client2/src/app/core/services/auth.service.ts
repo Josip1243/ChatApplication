@@ -45,19 +45,21 @@ export class AuthService {
       this.logged.next(false);
     }
 
-    let token = this.decodedToken();
-    let username = token['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
-    this.user.next(username);
+    if (this.getAccessToken()) {
+      let token = this.decodedToken();
+      let username = token['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+      this.user.next(username);
+    }
   }
 
-  storeToken(tokenValue: string){
+  storeAccessToken(tokenValue: string){
     localStorage.setItem('token', tokenValue)
   }
   storeRefreshToken(tokenValue: string){
     localStorage.setItem('refreshToken', tokenValue)
   }
 
-  getToken(){
+  getAccessToken(){
     return localStorage.getItem('token')
   }
   getRefreshToken(){
@@ -66,13 +68,11 @@ export class AuthService {
 
   decodedToken(){
     const jwtHelper = new JwtHelperService();
-    const token = this.getToken()!;
-    console.log(jwtHelper.decodeToken(token))
+    const token = this.getAccessToken()!;
     return jwtHelper.decodeToken(token)
   }
 
   public refreshToken(tokenDTO: TokenDTO): Observable<TokenDTO> {
-    debugger;
     return this.http.post<TokenDTO>(this.baseUrl + 'api/auth/refresh-token', tokenDTO);
   }
 
