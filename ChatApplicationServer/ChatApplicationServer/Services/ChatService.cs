@@ -67,7 +67,7 @@ namespace ChatApplicationServer.Services
             return result;
         }
 
-        private List<ChatNameDTO> mapToChatNameDTO(List<ChatRoom> chatRooms)
+        private IEnumerable<ChatNameDTO> mapToChatNameDTO(IEnumerable<ChatRoom> chatRooms)
         {
             var chatDTOs = new List<ChatNameDTO>();
 

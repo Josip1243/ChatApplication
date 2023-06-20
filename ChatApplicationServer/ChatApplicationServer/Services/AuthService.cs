@@ -57,6 +57,7 @@ namespace ChatApplicationServer.Services
         {
             List<Claim> claims = new List<Claim>
             {
+                new Claim("Id", user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
             };
 

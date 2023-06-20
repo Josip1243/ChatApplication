@@ -5,15 +5,14 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { ChatNameDTO, ChatDTO } from 'src/app/shared/models/chat.models';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ChatService {
-
   baseUrl = 'http://localhost:5220/';
   private currentChatId = new BehaviorSubject<number>(1);
   currentChat = this.currentChatId.asObservable();
-  
-  constructor(private http: HttpClient, private router: Router) { }
+
+  constructor(private http: HttpClient, private router: Router) {}
 
   public getAllChats(): Observable<ChatNameDTO[]> {
     return this.http.get<ChatNameDTO[]>(this.baseUrl + 'api/chat/getAllChats');
@@ -22,7 +21,9 @@ export class ChatService {
   public getChat(chatId: number): Observable<ChatDTO> {
     let params = new HttpParams();
     params = params.append('chatId', chatId);
-    return this.http.get<ChatDTO>(this.baseUrl + 'api/chat/getChat', {params: params});
+    return this.http.get<ChatDTO>(this.baseUrl + 'api/chat/getChat', {
+      params: params,
+    });
   }
 
   public changeChat(chatId: number) {
@@ -34,7 +35,6 @@ export class ChatService {
   }
 
   public removeChat(chatId: number) {
-    // dodati chatId u poziv
-    this.http.delete(this.baseUrl + 'api/chat/removeChat');
+    return this.http.delete(this.baseUrl + 'api/chat/removeChat/' + chatId);
   }
 }

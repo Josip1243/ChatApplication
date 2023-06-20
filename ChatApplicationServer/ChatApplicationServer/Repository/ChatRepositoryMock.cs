@@ -32,12 +32,12 @@ namespace ChatApplicationServer.Repository
 
 
 
-        public List<ChatRoom> GetAllChats(int userId)
+        public IEnumerable<ChatRoom> GetAllChats(int userId)
         {
             var chatsInvolved = userChat.Where(x => x.UserId == userId).Select(x => x.ChatId);
             var chats = chatRooms.Where(x => chatsInvolved.Contains(x.Id));
 
-            return chatRooms;
+            return chats;
         }
 
         public ChatRoom GetChat(int chatId)
@@ -69,5 +69,13 @@ namespace ChatApplicationServer.Repository
             chatRooms.Add(newChat);
             return newChat;
         } 
+
+        public void RemoveChat(int chatId, int userId)
+        {
+            var uC = userChat.First(usrCh => usrCh.ChatId == chatId && usrCh.UserId == userId);
+
+            if(uC != null) 
+                userChat.Remove(uC);
+        }
     }
 }

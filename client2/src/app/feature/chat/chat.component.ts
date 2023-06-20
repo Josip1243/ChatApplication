@@ -10,39 +10,47 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
-
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatListModule],
+  imports: [
+    CommonModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatButtonModule,
+    ReactiveFormsModule,
+    MatListModule,
+  ],
   templateUrl: './chat.component.html',
-  styleUrls: ['./chat.component.scss']
+  styleUrls: ['./chat.component.scss'],
 })
 export class UsersComponent implements OnInit {
-
   chats!: ChatNameDTO[];
   isLoggedIn: boolean = true;
   addChatFlag: boolean = false;
 
-  constructor(private chatService: ChatService, private authService: AuthService) {}
+  constructor(
+    private chatService: ChatService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-
-    this.authService.isLogged.subscribe(logged => {
+    this.authService.isLogged.subscribe((logged) => {
       this.isLoggedIn = logged;
 
-      if(logged) {
-        this.chatService.getAllChats().subscribe(c => {
+      if (logged) {
+        this.chatService.getAllChats().subscribe((c) => {
           this.chats = c;
-        })
+        });
       }
     });
   }
 
   refreshChats() {
-    this.chatService.getAllChats().subscribe(c => {
+    this.chatService.getAllChats().subscribe((c) => {
       this.chats = c;
-    })
+    });
   }
 
   changeChat(chatId: number) {
@@ -54,6 +62,6 @@ export class UsersComponent implements OnInit {
   }
 
   removeChat(chatId: number) {
-    this.chatService.removeChat(chatId);
+    this.chatService.removeChat(chatId).subscribe();
   }
 }
