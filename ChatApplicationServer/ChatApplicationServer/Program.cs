@@ -4,6 +4,7 @@ using ChatApplicationServer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ChatApplicationServer.HubConfig;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,7 +62,7 @@ app.UseAuthorization();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
-    //endpoints.MapHub<ChatHub>("/chat");
+    endpoints.MapHub<ChatHub>("/chat");
 });
 
 app.Run();
