@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace ChatApplicationServer.Services
 {
-    public class ConnectionService : IConnectionService
+    public class ConnectionService // : IConnectionService
     {
         // Uncoment when using DB
         //private ChatContext context;
@@ -19,9 +19,11 @@ namespace ChatApplicationServer.Services
             this.connectionRepository = connectionRepository;
         }
 
-        public async void AddConnection(Connection connection)
+        public async void AddConnection(int userId, string signalrConnectionId)
         {
-            connectionRepository.AddConnection(connection);
+            var newConnection = new Connection() { UserId = userId, SignalRId = signalrConnectionId, timeStamp = DateTime.Now };
+
+            connectionRepository.AddConnection(newConnection);
 
             // Uncomment when using DB
             //await context.Connections.AddAsync(connection);

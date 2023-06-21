@@ -41,7 +41,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ChatService, ChatService>();
-builder.Services.AddScoped<IConnectionService, ConnectionService>();
+builder.Services.AddScoped<ConnectionService, ConnectionService>();
 builder.Services.AddSingleton<IAuthService, AuthService>();
 builder.Services.AddSingleton<UserRepositoryMock, UserRepositoryMock>();
 builder.Services.AddSingleton<ChatRepositoryMock, ChatRepositoryMock>();

@@ -1,12 +1,23 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using ChatApplicationServer.Services;
+using Microsoft.AspNetCore.SignalR;
 
 namespace ChatApplicationServer.HubConfig
 {
     public class ChatHub : Hub
     {
-        public async Task askServer(string someText)
+        private readonly ConnectionService _connectionService;
+
+        public ChatHub(ConnectionService connectionService) {
+            _connectionService = connectionService;
+        }
+
+        public async Task askServer(int userId)
         {
-            string tempString = "message was: " + someText;
+            var signalrConnectionId = this.Context.ConnectionId;
+
+            _connectionService.AddConnection(userId, signalrConnectionId);
+
+            await Clients.Client(this.Context.ConnectionId).SendAsync("askServerListener", "Connection added!");
         }
     }
 }

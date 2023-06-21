@@ -4,19 +4,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { User } from 'src/app/shared/models/user.model';
+import { Router } from '@angular/router';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { passwordMatch } from 'src/app/core/validators/password-match.validator';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { User } from 'src/app/shared/models/user.model';
-import { Router } from '@angular/router';
-import { TokenDTO } from 'src/app/shared/models/tokenDTO.model';
-import { catchError, throwError } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',

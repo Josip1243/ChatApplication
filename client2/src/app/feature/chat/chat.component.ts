@@ -6,9 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { ChatService } from 'src/app/core/services/chat.service';
 import { ChatNameDTO } from 'src/app/shared/models/chat.models';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-users',

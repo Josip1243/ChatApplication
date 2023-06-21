@@ -12,20 +12,14 @@ namespace ChatApplicationServer.Controllers
     [ApiController]
     public class ChatController : Controller
     {
-        private readonly IConfiguration _configuration;
-        private readonly IUserService _userService;
-        private readonly IAuthService _authService;
         private readonly UserRepositoryMock _userRepositoryMock;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ChatService _chatService;
         private readonly ChatRepositoryMock _chatRepositoryMock;
 
-        public ChatController(IConfiguration configuration, IUserService userService, IAuthService authService, UserRepositoryMock userRepositoryMock, 
+        public ChatController(UserRepositoryMock userRepositoryMock, 
                               IHttpContextAccessor httpContextAccessor, ChatService chatService, ChatRepositoryMock chatRepositoryMock)
         {
-            _configuration = configuration;
-            _userService = userService;
-            _authService = authService;
             _userRepositoryMock = userRepositoryMock;
             _httpContextAccessor = httpContextAccessor;
             _chatService = chatService;

@@ -4,23 +4,29 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { TokenDTO } from 'src/app/shared/models/tokenDTO.model';
 import { ChatComponent } from '../active-chat/active-chat.component';
 import { UsersComponent } from '../chat/chat.component';
+import { SignalrService } from 'src/app/core/services/signalr.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, ChatComponent, UsersComponent],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
-
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private signalrService: SignalrService
+  ) {}
 
   ngOnInit(): void {
+    setTimeout(() => {
+      this.signalrService.askServer();
+      this.signalrService.askServerListener();
+    }, 1000);
   }
 
   doSomething() {
-
     let tempAccTok = this.authService.getAccessToken();
     let tempRefTok = this.authService.getRefreshToken();
 
@@ -28,15 +34,15 @@ export class HomeComponent implements OnInit {
     tokentDTO.accessToken = tempAccTok == null ? '' : tempAccTok;
     tokentDTO.refreshToken = tempRefTok == null ? '' : tempRefTok;
 
-    this.authService.refreshToken(tokentDTO).subscribe(u => {
+    this.authService.refreshToken(tokentDTO).subscribe((u) => {
       this.authService.storeAccessToken(u.accessToken);
       this.authService.storeRefreshToken(u.refreshToken);
-    })
+    });
   }
 
   getMe() {
-    this.authService.getMe().subscribe(u => {
+    this.authService.getMe().subscribe((u) => {
       console.log(u);
-    })
+    });
   }
 }

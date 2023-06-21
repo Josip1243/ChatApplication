@@ -7,18 +7,19 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { TokenDTO } from 'src/app/shared/models/tokenDTO.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-
   baseUrl = 'http://localhost:5220/';
-  
+
   private logged = new BehaviorSubject<boolean>(false);
   isLogged = this.logged.asObservable();
-  private user = new BehaviorSubject<string>('');
-  username = this.user.asObservable();
+  private usernameBehaviorSubject = new BehaviorSubject<string>('');
+  private userIdBehaviorSubject = new BehaviorSubject<number>(-1);
+  username = this.usernameBehaviorSubject.asObservable();
+  userId = this.userIdBehaviorSubject.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router) {}
 
   public register(user: User): Observable<any> {
     return this.http.post(this.baseUrl + 'api/auth/register', user);
@@ -47,36 +48,44 @@ export class AuthService {
 
     if (this.getAccessToken()) {
       let token = this.decodedToken();
-      let username = token['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
-      this.user.next(username);
+      let username =
+        token['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+      let userId = Number(token['Id']);
+      this.usernameBehaviorSubject.next(username);
+      this.userIdBehaviorSubject.next(userId);
     }
   }
 
-  storeAccessToken(tokenValue: string){
-    localStorage.setItem('token', tokenValue)
+  storeAccessToken(tokenValue: string) {
+    localStorage.setItem('token', tokenValue);
   }
-  storeRefreshToken(tokenValue: string){
-    localStorage.setItem('refreshToken', tokenValue)
-  }
-
-  getAccessToken(){
-    return localStorage.getItem('token')
-  }
-  getRefreshToken(){
-    return localStorage.getItem('refreshToken')
+  storeRefreshToken(tokenValue: string) {
+    localStorage.setItem('refreshToken', tokenValue);
   }
 
-  decodedToken(){
+  getAccessToken() {
+    return localStorage.getItem('token');
+  }
+  getRefreshToken() {
+    return localStorage.getItem('refreshToken');
+  }
+
+  decodedToken() {
     const jwtHelper = new JwtHelperService();
     const token = this.getAccessToken()!;
-    return jwtHelper.decodeToken(token)
+    return jwtHelper.decodeToken(token);
   }
 
   public refreshToken(tokenDTO: TokenDTO): Observable<TokenDTO> {
-    return this.http.post<TokenDTO>(this.baseUrl + 'api/auth/refresh-token', tokenDTO);
+    return this.http.post<TokenDTO>(
+      this.baseUrl + 'api/auth/refresh-token',
+      tokenDTO
+    );
   }
 
   public getMe(): Observable<string> {
-    return this.http.get(this.baseUrl + 'api/auth/GetMe', {responseType: 'text'});
+    return this.http.get(this.baseUrl + 'api/auth/GetMe', {
+      responseType: 'text',
+    });
   }
 }
