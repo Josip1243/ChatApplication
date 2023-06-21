@@ -51,7 +51,7 @@ namespace ChatApplicationServer.Controllers
             return Ok(_chatService.GetChat(chatId));
         }
 
-        [HttpPost("addChat"), Authorize]
+        [HttpGet("addChat")]
         public async Task<ActionResult<ChatDTO>> AddChat(string username)
         {
             var currentUser = string.Empty;
@@ -60,7 +60,7 @@ namespace ChatApplicationServer.Controllers
                 currentUser = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
 
                 var chat = _chatService.AddChat(currentUser, username);
-                return chat;
+                return Ok(chat);
             }
             return BadRequest();
         }

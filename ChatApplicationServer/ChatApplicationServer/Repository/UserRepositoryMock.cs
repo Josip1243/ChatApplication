@@ -12,6 +12,7 @@ namespace ChatApplicationServer.Repository
         {
             users = new List<User>()
             {
+                new User { Id = 1, Username = "Marko"}
             };
         }
 

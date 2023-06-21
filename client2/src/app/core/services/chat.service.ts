@@ -31,7 +31,11 @@ export class ChatService {
   }
 
   public addChat(username: string) {
-    this.http.post<ChatDTO>(this.baseUrl + 'api/chat/addChat', username);
+    let params = new HttpParams();
+    params = params.append('username', username);
+    return this.http.get<ChatDTO>(this.baseUrl + 'api/chat/addChat', {
+      params: params,
+    });
   }
 
   public removeChat(chatId: number) {

@@ -58,10 +58,15 @@ export class UsersComponent implements OnInit {
   }
 
   addChat(searchValue: string) {
-    this.chatService.addChat(searchValue);
+    this.chatService.addChat(searchValue).subscribe(() => {
+      debugger;
+      this.refreshChats();
+    });
   }
 
   removeChat(chatId: number) {
-    this.chatService.removeChat(chatId).subscribe();
+    this.chatService.removeChat(chatId).subscribe(() => {
+      this.refreshChats();
+    });
   }
 }

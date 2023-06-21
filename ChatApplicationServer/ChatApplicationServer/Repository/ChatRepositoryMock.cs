@@ -47,23 +47,24 @@ namespace ChatApplicationServer.Repository
             return chat;
         }
 
-        public ChatRoom AddChat(int user1, int user2)
+        public ChatRoom AddChat(User user1, User user2)
         {
             var newChat = new ChatRoom()
             {
                 Id = chatRooms.Count() + 1,
                 CreatedAt = DateTime.Now,
+                Name = user2.Username
             };
 
             userChat.Add(new UserChat()
             {
                 ChatId = newChat.Id,
-                UserId = user1,
+                UserId = user1.Id,
             });
             userChat.Add(new UserChat()
             {
                 ChatId = newChat.Id,
-                UserId = user2,
+                UserId = user2.Id,
             });
 
             chatRooms.Add(newChat);

@@ -38,8 +38,20 @@ namespace ChatApplicationServer.Services
 
             if (user1.HasValue && user2.HasValue)
             {
-                var newChat = _chatRepositoryMock.AddChat(user1.ValueOrDefault().Id, user2.ValueOrDefault().Id);
-                return mapToChatDTO(newChat);
+                if (user1.ValueOrDefault() != user2.ValueOrDefault())
+                {
+                    var user1Chats = _chatRepositoryMock.GetAllChats(user1.ValueOrDefault().Id);
+                    var user2Chats = _chatRepositoryMock.GetAllChats(user2.ValueOrDefault().Id);
+
+                    var same = user1Chats.FirstOrDefault(uC => user2Chats.Select(u => u.Id).Contains(uC.Id));
+
+                    if (same is not null) {
+                        return mapToChatDTO(same);
+                    }
+
+                    var newChat = _chatRepositoryMock.AddChat(user1.ValueOrDefault(), user2.ValueOrDefault());
+                    return mapToChatDTO(newChat);
+                }
             }
             return null;
         }
@@ -53,16 +65,20 @@ namespace ChatApplicationServer.Services
         {
             List<MessageDTO> result = new List<MessageDTO>();
 
-            foreach (var message in messages) {
-
-                result.Add(new MessageDTO()
+            if(messages is not null)
+            {
+                foreach (var message in messages)
                 {
-                    Id = message.Id,
-                    ChatId = message.ChatId,
-                    UserId = message.UserId,
-                    Username = message.Username,
-                    Content = message.Content
-                });
+
+                    result.Add(new MessageDTO()
+                    {
+                        Id = message.Id,
+                        ChatId = message.ChatId,
+                        UserId = message.UserId,
+                        Username = message.Username,
+                        Content = message.Content
+                    });
+                }
             }
             return result;
         }
@@ -71,9 +87,12 @@ namespace ChatApplicationServer.Services
         {
             var chatDTOs = new List<ChatNameDTO>();
 
-            foreach (var chatRoom in chatRooms)
+            if (chatRooms is not null)
             {
-                chatDTOs.Add(new ChatNameDTO() { Id = chatRoom.Id, Name = chatRoom.Name });
+                foreach (var chatRoom in chatRooms)
+                {
+                    chatDTOs.Add(new ChatNameDTO() { Id = chatRoom.Id, Name = chatRoom.Name });
+                }
             }
 
             return chatDTOs;
