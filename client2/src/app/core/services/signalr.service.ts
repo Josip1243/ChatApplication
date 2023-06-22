@@ -48,4 +48,18 @@ export class SignalrService {
       console.log(msg);
     });
   }
+
+  sendMessage(message: string, userId: number) {
+    debugger;
+    this.hubConnection
+      .invoke('sendMessage', message, userId)
+      .catch(() => console.log('Error while sending message.'));
+  }
+
+  receiveMessage() {
+    this.hubConnection.on('receiveMessage', (msg) => {
+      debugger;
+      console.log(msg);
+    });
+  }
 }

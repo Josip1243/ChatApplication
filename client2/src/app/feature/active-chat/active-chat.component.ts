@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ChatService } from 'src/app/core/services/chat.service';
+import { SignalrService } from 'src/app/core/services/signalr.service';
 import { ChatDTO, Message } from 'src/app/shared/models/chat.models';
 
 @Component({
@@ -19,7 +20,8 @@ export class ChatComponent implements OnInit {
 
   constructor(
     private chatService: ChatService,
-    private authService: AuthService
+    private authService: AuthService,
+    private signalrService: SignalrService
   ) {}
 
   ngOnInit(): void {
@@ -41,5 +43,9 @@ export class ChatComponent implements OnInit {
       return false;
     }
     return true;
+  }
+
+  sendMessage() {
+    this.signalrService.sendMessage('Hello', this.chatRoom.id);
   }
 }

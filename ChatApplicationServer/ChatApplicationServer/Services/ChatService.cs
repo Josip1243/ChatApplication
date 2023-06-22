@@ -31,6 +31,15 @@ namespace ChatApplicationServer.Services
             return mapToChatDTO(_chatRepositoryMock.GetChat(chatId));
         }
 
+        public IEnumerable<int> GetChatUsers(int chatId)
+        {
+            return _chatRepositoryMock.GetChatUsers(chatId);
+        }
+
+        public void AddMessage(int chatRoomId, string message)
+        {
+            _chatRepositoryMock.AddMessage(chatRoomId, message);
+        }
         public ChatDTO AddChat(string currentUser, string username)
         {
             var user1 = _userRepositoryMock.GetUser(currentUser);

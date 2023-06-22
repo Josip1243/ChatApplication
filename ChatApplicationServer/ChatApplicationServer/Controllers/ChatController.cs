@@ -45,7 +45,7 @@ namespace ChatApplicationServer.Controllers
             return Ok(_chatService.GetChat(chatId));
         }
 
-        [HttpGet("addChat")]
+        [HttpGet("addChat"), Authorize]
         public async Task<ActionResult<ChatDTO>> AddChat(string username)
         {
             var currentUser = string.Empty;
@@ -59,7 +59,7 @@ namespace ChatApplicationServer.Controllers
             return BadRequest();
         }
 
-        [HttpDelete("removeChat/{chatId}")]
+        [HttpDelete("removeChat/{chatId}"), Authorize]
         public async Task<ActionResult> RemoveChat(int chatId)
         {
             var userId = int.Parse(_httpContextAccessor.HttpContext.User.FindFirstValue("Id"));

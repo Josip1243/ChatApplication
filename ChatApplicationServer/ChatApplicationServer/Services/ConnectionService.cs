@@ -36,14 +36,18 @@ namespace ChatApplicationServer.Services
             connectionRepository.RemoveConnection(tempConn);
         }
 
-        public async Task<Connection> GetConnection(string connectionId)
+        public async Task<Connection> GetConnection(int userId, string connectionId)
         {
-            return connectionRepository.GetConnections().FirstOrDefault(conn => conn.SignalRId == connectionId);
+            return connectionRepository.GetConnections().FirstOrDefault(conn => conn.UserId == userId && conn.SignalRId == connectionId);
         }
 
         public List<Connection> GetConnections()
         {
             return connectionRepository.GetConnections();
+        }
+        public List<Connection> GetConnections(IEnumerable<int> userIds)
+        {
+            return connectionRepository.GetConnections().Where(conn => userIds.Contains(conn.UserId)).ToList();
         }
     }
 }

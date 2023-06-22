@@ -23,6 +23,7 @@ export class HomeComponent implements OnInit {
     setTimeout(() => {
       this.signalrService.askServer();
       this.signalrService.askServerListener();
+      this.signalrService.receiveMessage();
     }, 1000);
   }
 

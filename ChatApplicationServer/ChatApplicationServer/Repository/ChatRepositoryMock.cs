@@ -47,6 +47,22 @@ namespace ChatApplicationServer.Repository
             return chat;
         }
 
+        public IEnumerable<int> GetChatUsers(int chatId)
+        {
+            var chatUsers = userChat.Where(uC => uC.ChatId == chatId).Select(uC => uC.UserId);
+            return chatUsers;
+        }
+
+        public void AddMessage(int chatRoomId, string message)
+        {
+            messages.Add(new Message()
+            {
+                ChatId = chatRoomId,
+                Content = message,
+                SentAt = DateTime.Now,
+            });
+        }
+
         public ChatRoom AddChat(User user1, User user2)
         {
             var newChat = new ChatRoom()
