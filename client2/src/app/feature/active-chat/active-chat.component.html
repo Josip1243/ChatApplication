@@ -5,13 +5,13 @@
             <mat-icon>close</mat-icon>
         </button>
     </div>
-    <div class="chat-body" *ngIf="chatRoom">
+    <div class="chat-body" #chatBody *ngIf="chatRoom" (scroll)="onScroll()">
         <div *ngIf="true" class="more-button-wrapper">
             <button mat-button>Ucitaj vise...</button>
         </div>
 
         <div *ngFor="let msg of chatRoom.messages; let i = index">
-            <div class="message" [ngClass]="msg.username != username ? 'message-user' : 'message-other'">
+            <div class="message" [ngClass]="msg.username == username ? 'message-user' : 'message-other'">
                 <div *ngIf="showMessageSender(msg, i)" class="message-info message-info-name">
                     <span>{{msg.username}}</span>
                 </div>
@@ -31,7 +31,7 @@
             <p>Poruka:</p>
         </div>
         <div class="chat-input-text">
-            <input type="text" placeholder="Type message here...">
+            <input type="text" [value]="text" placeholder="Type message here...">
         </div>
         <div class="chat-input-button">
             <button (click)="sendMessage()">Send</button>

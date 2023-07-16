@@ -1,4 +1,8 @@
-﻿using ChatApplicationServer.Services;
+﻿using ChatApplicationServer.DTO;
+using ChatApplicationServer.Models;
+using ChatApplicationServer.Repository;
+using ChatApplicationServer.Services;
+using Microsoft.AspNet.SignalR.Messaging;
 using Microsoft.AspNetCore.SignalR;
 
 namespace ChatApplicationServer.HubConfig
@@ -7,10 +11,12 @@ namespace ChatApplicationServer.HubConfig
     {
         private readonly ConnectionService _connectionService;
         private readonly ChatService _chatService;
+        private readonly ChatRepositoryMock _chatRepositoryMock;
 
-        public ChatHub(ConnectionService connectionService, ChatService chatService) {
+        public ChatHub(ConnectionService connectionService, ChatService chatService, ChatRepositoryMock chatRepositoryMock) {
             _connectionService = connectionService;
             _chatService = chatService;
+            _chatRepositoryMock = chatRepositoryMock;
         }
 
         public async Task askServer(int userId)
@@ -22,14 +28,19 @@ namespace ChatApplicationServer.HubConfig
             await Clients.Client(this.Context.ConnectionId).SendAsync("askServerListener", "Connection added!");
         }
 
-        public async Task sendMessage(string message, int chatRoomId)
+        public async Task sendMessage(MessageDTO messageDTO)
         {
-            _chatService.AddMessage(chatRoomId, message);
-            var chatRoom = _chatService.GetChat(chatRoomId);
-            var chatUsersIds = _chatService.GetChatUsers(chatRoomId);
-            var connections = _connectionService.GetConnections(chatUsersIds).Select(con => con.SignalRId);
+            _chatService.AddMessage(messageDTO);
+            var chatRoom = _chatService.GetChat(messageDTO.ChatId);
+            var chatUsers = _chatService.GetChatUsers(messageDTO.ChatId);
 
-            await Clients.Clients(connections).SendAsync("receiveMessage", message);
+            foreach (var user in chatUsers) 
+            {
+                _chatRepositoryMock.AddUserChat(messageDTO.ChatId, user.Id);
+            }
+            var connections = _connectionService.GetConnections(chatUsers.Select(u => u.Id)).Select(con => con.SignalRId);
+
+            await Clients.Clients(connections).SendAsync("receiveMessage", messageDTO);
         }
     }
 }

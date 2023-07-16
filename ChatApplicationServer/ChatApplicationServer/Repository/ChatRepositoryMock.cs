@@ -1,5 +1,6 @@
 ﻿using ChatApplicationServer.DTO;
 using ChatApplicationServer.Models;
+using System.Runtime.Intrinsics.X86;
 
 namespace ChatApplicationServer.Repository
 {
@@ -24,11 +25,7 @@ namespace ChatApplicationServer.Repository
             new Message() {Id = 2, ChatId = 2, Content = "Be", UserId = 1, Username = "Pero"},
         };
 
-        List<ChatRoom> chatRooms = new List<ChatRoom>()
-        {
-            new ChatRoom() { Id = 1, Name = "AAA", Messages = messages },
-            new ChatRoom() { Id = 2, Name = "BBB", Messages = messages2 },
-        };
+        List<ChatRoom> chatRooms = new List<ChatRoom>();
 
 
 
@@ -43,23 +40,25 @@ namespace ChatApplicationServer.Repository
         public ChatRoom GetChat(int chatId)
         {
             var chat = chatRooms.First(x => x.Id == chatId);
-
+            chat.Messages = messages.FindAll(x => x.ChatId == chatId);
             return chat;
         }
 
-        public IEnumerable<int> GetChatUsers(int chatId)
+        public IEnumerable<User> GetChatUsers(int chatId)
         {
-            var chatUsers = userChat.Where(uC => uC.ChatId == chatId).Select(uC => uC.UserId);
-            return chatUsers;
+            var chatRoom = chatRooms.First(cr => cr.Id == chatId);
+            return chatRoom.Users;
         }
 
-        public void AddMessage(int chatRoomId, string message)
+        public void AddMessage(MessageDTO messageDTO)
         {
             messages.Add(new Message()
             {
-                ChatId = chatRoomId,
-                Content = message,
-                SentAt = DateTime.Now,
+                ChatId = messageDTO.ChatId,
+                Content = messageDTO.Content,
+                SentAt = messageDTO.SentAt,
+                UserId = messageDTO.UserId,
+                Username = messageDTO.Username,
             });
         }
 
@@ -69,23 +68,33 @@ namespace ChatApplicationServer.Repository
             {
                 Id = chatRooms.Count() + 1,
                 CreatedAt = DateTime.Now,
-                Name = user2.Username
+                Name = user2.Username + ' ' + user1.Username,
+                Users = new List<User>()
             };
+            newChat.Users.Add(user1);
+            newChat.Users.Add(user2);
 
             userChat.Add(new UserChat()
             {
                 ChatId = newChat.Id,
                 UserId = user1.Id,
             });
-            userChat.Add(new UserChat()
-            {
-                ChatId = newChat.Id,
-                UserId = user2.Id,
-            });
 
             chatRooms.Add(newChat);
             return newChat;
         } 
+
+        public void AddUserChat(int chatRoomId, int userId)
+        {
+            if (!userChat.Any(uc => uc.ChatId == chatRoomId && uc.UserId == userId))
+            {
+                userChat.Add(new UserChat()
+                {
+                    ChatId = chatRoomId,
+                    UserId = userId
+                });
+            }
+        }
 
         public void RemoveChat(int chatId, int userId)
         {

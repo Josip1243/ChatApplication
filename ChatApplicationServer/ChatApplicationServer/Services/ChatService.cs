@@ -1,6 +1,8 @@
 ﻿using ChatApplicationServer.DTO;
+using ChatApplicationServer.HubConfig;
 using ChatApplicationServer.Models;
 using ChatApplicationServer.Repository;
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Messaging;
 using Optional.Unsafe;
 using Message = ChatApplicationServer.Models.Message;
@@ -11,11 +13,13 @@ namespace ChatApplicationServer.Services
     {
         private readonly ChatRepositoryMock _chatRepositoryMock;
         private readonly UserRepositoryMock _userRepositoryMock;
+        private readonly ConnectionService _connectionService;
 
-        public ChatService(ChatRepositoryMock chatRepositoryMock, UserRepositoryMock userRepositoryMock)
+        public ChatService(ChatRepositoryMock chatRepositoryMock, UserRepositoryMock userRepositoryMock, ConnectionService connectionService)
         {
             _chatRepositoryMock = chatRepositoryMock;
             _userRepositoryMock = userRepositoryMock;
+            _connectionService = connectionService;
         }
 
         public IEnumerable<ChatNameDTO> GetAllChats(string username)
@@ -31,34 +35,39 @@ namespace ChatApplicationServer.Services
             return mapToChatDTO(_chatRepositoryMock.GetChat(chatId));
         }
 
-        public IEnumerable<int> GetChatUsers(int chatId)
+        public IEnumerable<User> GetChatUsers(int chatId)
         {
             return _chatRepositoryMock.GetChatUsers(chatId);
         }
 
-        public void AddMessage(int chatRoomId, string message)
+        public void AddMessage(MessageDTO messageDTO)
         {
-            _chatRepositoryMock.AddMessage(chatRoomId, message);
+            _chatRepositoryMock.AddMessage(messageDTO);
         }
         public ChatDTO AddChat(string currentUser, string username)
         {
-            var user1 = _userRepositoryMock.GetUser(currentUser);
-            var user2 = _userRepositoryMock.GetUser(username);
+            var user1Optional = _userRepositoryMock.GetUser(currentUser);
+            var user2Optional = _userRepositoryMock.GetUser(username);
 
-            if (user1.HasValue && user2.HasValue)
+            if (user1Optional.HasValue && user2Optional.HasValue)
             {
-                if (user1.ValueOrDefault() != user2.ValueOrDefault())
+                var user1 = user1Optional.ValueOrFailure();
+                var user2 = user2Optional.ValueOrFailure();
+
+                if (user1.Id != user2.Id)
                 {
-                    var user1Chats = _chatRepositoryMock.GetAllChats(user1.ValueOrDefault().Id);
-                    var user2Chats = _chatRepositoryMock.GetAllChats(user2.ValueOrDefault().Id);
+                    var user1Chats = _chatRepositoryMock.GetAllChats(user1.Id);
+                    var user2Chats = _chatRepositoryMock.GetAllChats(user2.Id);
 
                     var same = user1Chats.FirstOrDefault(uC => user2Chats.Select(u => u.Id).Contains(uC.Id));
 
-                    if (same is not null) {
+                    if (same is not null)
+                    {
                         return mapToChatDTO(same);
                     }
 
-                    var newChat = _chatRepositoryMock.AddChat(user1.ValueOrDefault(), user2.ValueOrDefault());
+                    var newChat = _chatRepositoryMock.AddChat(user1, user2);
+
                     return mapToChatDTO(newChat);
                 }
             }
@@ -85,7 +94,8 @@ namespace ChatApplicationServer.Services
                         ChatId = message.ChatId,
                         UserId = message.UserId,
                         Username = message.Username,
-                        Content = message.Content
+                        Content = message.Content,
+                        SentAt = message.SentAt
                     });
                 }
             }

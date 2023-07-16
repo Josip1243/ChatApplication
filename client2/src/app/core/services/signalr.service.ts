@@ -1,10 +1,12 @@
-import { Injectable, OnInit } from '@angular/core';
+import { EventEmitter, Injectable, OnInit, Output } from '@angular/core';
 import {
   HttpTransportType,
   HubConnection,
   HubConnectionBuilder,
 } from '@microsoft/signalr';
 import { AuthService } from './auth.service';
+import { ChatService } from './chat.service';
+import { MessageDTO } from 'src/app/shared/models/messageDTO';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +14,12 @@ import { AuthService } from './auth.service';
 export class SignalrService {
   userId!: number;
   hubConnection!: HubConnection;
+  @Output() onSignalRMessage: EventEmitter<any> = new EventEmitter();
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private chatService: ChatService
+  ) {
     this.authService.userId.subscribe((id) => {
       this.userId = id;
     });
@@ -49,17 +55,21 @@ export class SignalrService {
     });
   }
 
-  sendMessage(message: string, userId: number) {
-    debugger;
+  sendMessage(message: MessageDTO) {
     this.hubConnection
-      .invoke('sendMessage', message, userId)
+      .invoke('sendMessage', message)
       .catch(() => console.log('Error while sending message.'));
   }
 
   receiveMessage() {
     this.hubConnection.on('receiveMessage', (msg) => {
-      debugger;
-      console.log(msg);
+      this.onSignalRMessage.emit(msg);
+    });
+  }
+
+  refreshChatList() {
+    this.hubConnection.on('refreshChatList', () => {
+      this.chatService.getAllChats();
     });
   }
 }

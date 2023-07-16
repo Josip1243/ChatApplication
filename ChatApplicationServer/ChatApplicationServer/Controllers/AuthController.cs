@@ -21,6 +21,7 @@ namespace ChatApplicationServer.Controllers
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
         private readonly UserRepositoryMock _userRepositoryMock;
+        private readonly ConnectionService _connectionService;
 
         public AuthController(IConfiguration configuration, IUserService userService, IAuthService authService, UserRepositoryMock userRepositoryMock)
         {
@@ -57,11 +58,9 @@ namespace ChatApplicationServer.Controllers
                 {
                     return BadRequest("Wrong username or password.");
                 }
+
                 string token = _authService.CreateToken(user.ValueOrDefault());
                 var refreshToken = _authService.GenerateRefreshToken(user.ValueOrFailure());
-
-                //_authService.SetRefreshToken(refreshToken, Response, user.ValueOrDefault());
-
                 return Ok(new TokenDTO()
                 {
                     AccessToken = token,
