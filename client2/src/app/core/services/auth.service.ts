@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { User } from 'src/app/shared/models/user.model';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { TokenDTO } from 'src/app/shared/models/tokenDTO.model';
+import { SignalrService } from './signalr.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,11 @@ export class AuthService {
   username = this.usernameBehaviorSubject.asObservable();
   userId = this.userIdBehaviorSubject.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private signalrService: SignalrService
+  ) {}
 
   public register(user: User): Observable<any> {
     return this.http.post(this.baseUrl + 'api/auth/register', user);
@@ -36,6 +41,7 @@ export class AuthService {
   public logout(page: string) {
     localStorage.clear();
     this.logged.next(false);
+    this.signalrService.disconnect();
     this.router.navigate([page]);
   }
 

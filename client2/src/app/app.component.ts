@@ -9,11 +9,7 @@ import { SignalrService } from './core/services/signalr.service';
 export class AppComponent implements OnInit {
   title = 'client';
 
-  constructor(private signalrService: SignalrService) {}
+  constructor() {}
 
-  ngOnInit(): void {
-    this.signalrService.startConnection();
-
-    setTimeout(() => {}, 1000);
-  }
+  ngOnInit(): void {}
 }

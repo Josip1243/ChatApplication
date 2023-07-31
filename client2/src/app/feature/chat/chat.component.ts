@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,6 +29,8 @@ export class UsersComponent implements OnInit {
   chats!: ChatNameDTO[];
   isLoggedIn: boolean = true;
   addChatFlag: boolean = false;
+  @Input() opened!: boolean;
+  @Output() openedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   constructor(
     private chatService: ChatService,
@@ -50,16 +52,17 @@ export class UsersComponent implements OnInit {
   refreshChats() {
     this.chatService.getAllChats().subscribe((c) => {
       this.chats = c;
+      this.addChatFlag = false;
     });
   }
 
   changeChat(chatId: number) {
     this.chatService.changeChat(chatId);
+    this.openedChange.emit(false);
   }
 
   addChat(searchValue: string) {
     this.chatService.addChat(searchValue).subscribe(() => {
-      debugger;
       this.refreshChats();
     });
   }

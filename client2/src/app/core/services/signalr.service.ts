@@ -12,18 +12,10 @@ import { MessageDTO } from 'src/app/shared/models/messageDTO';
   providedIn: 'root',
 })
 export class SignalrService {
-  userId!: number;
   hubConnection!: HubConnection;
   @Output() onSignalRMessage: EventEmitter<any> = new EventEmitter();
 
-  constructor(
-    private authService: AuthService,
-    private chatService: ChatService
-  ) {
-    this.authService.userId.subscribe((id) => {
-      this.userId = id;
-    });
-  }
+  constructor(private chatService: ChatService) {}
 
   startConnection = () => {
     this.hubConnection = new HubConnectionBuilder()
@@ -31,6 +23,7 @@ export class SignalrService {
         skipNegotiation: true,
         transport: HttpTransportType.WebSockets,
       })
+      .withAutomaticReconnect()
       .build();
 
     this.hubConnection
@@ -43,15 +36,37 @@ export class SignalrService {
       );
   };
 
-  askServer() {
+  stopConnection() {
+    if (this.hubConnection) {
+      this.hubConnection
+        .stop()
+        .catch(() => console.log('Error while stopping connection.'));
+    }
+  }
+
+  askServer(userId: number) {
     this.hubConnection
-      .invoke('askServer', this.userId)
+      .invoke('askServer', userId)
       .catch(() => console.log('Error while asking server.'));
   }
 
   askServerListener() {
     this.hubConnection.on('askServerListener', (msg) => {
       console.log(msg);
+    });
+  }
+
+  disconnect() {
+    this.hubConnection
+      .invoke('disconnect')
+      .catch((err) =>
+        console.log('Error while disconnecting from server.' + err)
+      );
+  }
+  disconnectListener() {
+    this.hubConnection.on('disconnect', (msg) => {
+      console.log(msg);
+      this.stopConnection();
     });
   }
 

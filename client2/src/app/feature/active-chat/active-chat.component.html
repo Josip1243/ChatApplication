@@ -1,11 +1,11 @@
-<div class="chat">
+<div class="chat" *ngIf="chatRoom">
     <div class="chat-header">
         <h3>Chat name</h3>
-        <button mat-icon-button>
+        <button mat-icon-button (click)="closeChat()">
             <mat-icon>close</mat-icon>
         </button>
     </div>
-    <div class="chat-body" #chatBody *ngIf="chatRoom" (scroll)="onScroll()">
+    <div class="chat-body" #chatBody (scroll)="onScroll()">
         <div *ngIf="true" class="more-button-wrapper">
             <button mat-button>Ucitaj vise...</button>
         </div>

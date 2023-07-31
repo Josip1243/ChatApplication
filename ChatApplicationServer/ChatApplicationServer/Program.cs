@@ -17,11 +17,6 @@ builder.Services.AddCors(options =>
         );
 });
 
-builder.Services.AddSignalR(options =>
-{
-    options.EnableDetailedErrors = true;
-});
-
 builder.Services.AddControllers();
 builder.Services.AddDbContextPool<ChatContext>( options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnectionString"))
@@ -39,6 +34,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddAuthorization();
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+});
+
+
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ChatService, ChatService>();
 builder.Services.AddScoped<ConnectionService, ConnectionService>();
@@ -47,6 +49,7 @@ builder.Services.AddSingleton<UserRepositoryMock, UserRepositoryMock>();
 builder.Services.AddSingleton<ChatRepositoryMock, ChatRepositoryMock>();
 builder.Services.AddSingleton<ConnectionsRepositoryMock, ConnectionsRepositoryMock>();
 builder.Services.AddHttpContextAccessor();
+
 
 var app = builder.Build();
 

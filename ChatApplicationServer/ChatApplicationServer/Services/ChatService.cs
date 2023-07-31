@@ -4,7 +4,9 @@ using ChatApplicationServer.Models;
 using ChatApplicationServer.Repository;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Messaging;
+using Optional.Collections;
 using Optional.Unsafe;
+using System.Security.Claims;
 using Message = ChatApplicationServer.Models.Message;
 
 namespace ChatApplicationServer.Services
@@ -26,8 +28,9 @@ namespace ChatApplicationServer.Services
         {
             var user = _userRepositoryMock.GetUser(username);
             var chats = _chatRepositoryMock.GetAllChats(user.ValueOrDefault().Id);
+            var userChats = _chatRepositoryMock.GetUserChats(user.ValueOrDefault().Id);
 
-            return mapToChatNameDTO(chats);
+            return mapToChatNameDTO(chats, userChats);
         }
 
         public ChatDTO GetChat(int chatId)
@@ -63,6 +66,15 @@ namespace ChatApplicationServer.Services
 
                     if (same is not null)
                     {
+                        var userChats = _chatRepositoryMock.GetUserChatsByChatId(same.Id);
+                        foreach (var userChat in userChats)
+                        {
+                            if (userChat.UserId == user1.Id)
+                            {
+                                userChat.Deleted = false;
+                                _chatRepositoryMock.UpdateUserChat(userChat);
+                            }
+                        }
                         return mapToChatDTO(same);
                     }
 
@@ -102,7 +114,7 @@ namespace ChatApplicationServer.Services
             return result;
         }
 
-        private IEnumerable<ChatNameDTO> mapToChatNameDTO(IEnumerable<ChatRoom> chatRooms)
+        private IEnumerable<ChatNameDTO> mapToChatNameDTO(IEnumerable<ChatRoom> chatRooms, IEnumerable<UserChat> userChats)
         {
             var chatDTOs = new List<ChatNameDTO>();
 
@@ -110,7 +122,9 @@ namespace ChatApplicationServer.Services
             {
                 foreach (var chatRoom in chatRooms)
                 {
-                    chatDTOs.Add(new ChatNameDTO() { Id = chatRoom.Id, Name = chatRoom.Name });
+                    var userChat = userChats.FirstOrNone(uc => uc.ChatId == chatRoom.Id);
+
+                    chatDTOs.Add(new ChatNameDTO() { Id = chatRoom.Id, Name = chatRoom.Name, Deleted = userChat.ValueOrDefault().Deleted });
                 }
             }
 

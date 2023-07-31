@@ -22,7 +22,7 @@ import { MessageDTO } from 'src/app/shared/models/messageDTO';
   styleUrls: ['./active-chat.component.scss'],
 })
 export class ChatComponent implements OnInit {
-  chatRoom!: ChatDTO;
+  chatRoom?: ChatDTO;
   username!: string;
   text!: string;
   shouldStickToBottom = true;
@@ -46,18 +46,18 @@ export class ChatComponent implements OnInit {
     });
 
     this.signalrService.onSignalRMessage.subscribe((msg) => {
-      if (msg.chatId == this.chatRoom.id) {
-        this.chatRoom.messages.push(msg);
-        this.scrollToBottom();
+      if (this.chatRoom) {
+        if (msg.chatId == this.chatRoom.id) {
+          this.chatRoom.messages.push(msg);
+          this.scrollToBottom(0);
+        }
       }
     });
   }
   ngAfterViewInit() {
-    this.scrollToBottom();
+    this.scrollToBottom(100);
   }
   onScroll() {
-    debugger;
-
     const chatBodyElement = this.chatBody.nativeElement;
     const scrollPosition = chatBodyElement.scrollTop;
     const scrollHeight = chatBodyElement.scrollHeight;
@@ -65,33 +65,40 @@ export class ChatComponent implements OnInit {
 
     this.shouldStickToBottom = scrollPosition >= scrollHeight - clientHeight;
   }
-  scrollToBottom() {
-    debugger;
-
+  scrollToBottom(time: number) {
     if (this.shouldStickToBottom) {
       setTimeout(() => {
         const chatBodyElement = this.chatBody.nativeElement;
         chatBodyElement.scrollTop = chatBodyElement.scrollHeight;
-      }, 900);
+      }, time);
     }
   }
 
+  closeChat() {
+    this.scrollToBottom(100);
+    this.chatRoom = undefined;
+  }
+
   showMessageSender(message: Message, i: number): boolean {
-    if (i == 0 && this.chatRoom.messages[i].username != message.username) {
-      return true;
-    } else if (this.chatRoom.messages[i].username == message.username) {
-      return false;
+    if (this.chatRoom) {
+      if (i == 0 && this.chatRoom.messages[i].username != message.username) {
+        return true;
+      } else if (this.chatRoom.messages[i].username == message.username) {
+        return false;
+      }
     }
     return true;
   }
 
   sendMessage() {
-    let newMessage = new MessageDTO();
-    newMessage.chatId = this.chatRoom.id;
-    newMessage.content = 'Helllllloooooooo';
-    newMessage.sentAt = new Date();
-    newMessage.username = this.username;
+    if (this.chatRoom) {
+      let newMessage = new MessageDTO();
+      newMessage.chatId = this.chatRoom.id;
+      newMessage.content = 'Helllllloooooooo';
+      newMessage.sentAt = new Date();
+      newMessage.username = this.username;
 
-    this.signalrService.sendMessage(newMessage);
+      this.signalrService.sendMessage(newMessage);
+    }
   }
 }

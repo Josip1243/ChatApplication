@@ -28,6 +28,13 @@ namespace ChatApplicationServer.HubConfig
             await Clients.Client(this.Context.ConnectionId).SendAsync("askServerListener", "Connection added!");
         }
 
+        public async Task disconnect()
+        {
+            var signalrConnectionId = this.Context.ConnectionId;
+            _connectionService.RemoveConnection(signalrConnectionId);
+            await Clients.Client(this.Context.ConnectionId).SendAsync("disconnectListener", "Connection removed!");
+        }
+
         public async Task sendMessage(MessageDTO messageDTO)
         {
             _chatService.AddMessage(messageDTO);

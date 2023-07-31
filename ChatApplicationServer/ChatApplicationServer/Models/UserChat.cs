@@ -7,5 +7,6 @@ namespace ChatApplicationServer.Models
     {
         public int UserId { get; set; }
         public int ChatId { get; set; }
+        public bool Deleted { get; set; } = false;
     }
 }

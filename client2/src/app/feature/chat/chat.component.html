@@ -1,4 +1,3 @@
-
 <div class="users-list-container">
 
     <h3>Chats:</h3>
@@ -26,8 +25,8 @@
     <div *ngIf="addChatFlag" class="add-chat-container">
 
         <div class="add-chat">
-        <span>Add chat:</span>
-        
+            <span>Add chat:</span>
+
             <input matInput #searchValue>
             <div>
                 <button mat-icon-button (click)="addChat(searchValue.value)">
@@ -41,7 +40,7 @@
 
     <mat-list>
         <mat-list-item *ngFor="let chat of chats">
-            <div class="users-list">
+            <div class="users-list" *ngIf="!chat.deleted">
                 <button mat-button (click)="changeChat(chat.id)" class="user-name">{{chat.name}}</button>
                 <button mat-icon-button class="user-delete" (click)="removeChat(chat.id)">
                     <mat-icon>close</mat-icon>

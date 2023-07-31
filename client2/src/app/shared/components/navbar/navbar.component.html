@@ -1,31 +1,30 @@
 <mat-toolbar color="primary">
-	<button mat-icon-button (click)="opened = !opened" *ngIf="isLoggedIn">
+  <button mat-icon-button (click)="opened = !opened" *ngIf="isLoggedIn">
     <mat-icon *ngIf="opened">close</mat-icon>
     <mat-icon *ngIf="!opened">menu</mat-icon>
   </button>
 
-  
-    <button class="user-info-button" mat-raised-button [matMenuTriggerFor]="userMenu" *ngIf="isLoggedIn">   
-      <div class="user-info">
-        <mat-icon>account_circle</mat-icon>
-        <span>{{username}}</span>
-        <mat-icon>arrow_drop_down</mat-icon>
-      </div>
-    </button>
 
-    <mat-menu #userMenu="matMenu" xPosition="before">
-      <button mat-menu-item>Profile<mat-icon>person</mat-icon></button>
-      <button mat-menu-item (click)="logout()">Logout<mat-icon>logout</mat-icon></button>
-    </mat-menu>
-  
-  
+  <button class="user-info-button" mat-raised-button [matMenuTriggerFor]="userMenu" *ngIf="isLoggedIn">
+    <div class="user-info">
+      <mat-icon>account_circle</mat-icon>
+      <span>{{username}}</span>
+      <mat-icon>arrow_drop_down</mat-icon>
+    </div>
+  </button>
+
+  <mat-menu #userMenu="matMenu" xPosition="before">
+    <button mat-menu-item (click)="logout()">Logout<mat-icon>logout</mat-icon></button>
+  </mat-menu>
+
+
 </mat-toolbar>
 <mat-sidenav-container autosize>
-    <mat-sidenav #sidenav mode="over" [(opened)]="opened">
-      <app-users></app-users>
-    </mat-sidenav>
-  
-    <mat-sidenav-content>
-      <router-outlet></router-outlet>
-    </mat-sidenav-content>
+  <mat-sidenav #sidenav mode="over" [(opened)]="opened">
+    <app-users [(opened)]="opened"></app-users>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
 </mat-sidenav-container>

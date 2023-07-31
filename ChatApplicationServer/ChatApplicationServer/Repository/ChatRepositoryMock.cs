@@ -1,32 +1,15 @@
 ﻿using ChatApplicationServer.DTO;
 using ChatApplicationServer.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Runtime.Intrinsics.X86;
 
 namespace ChatApplicationServer.Repository
 {
     public class ChatRepositoryMock
     {
-        List<UserChat> userChat = new List<UserChat>()
-        {
-            new UserChat() { UserId = 1, ChatId = 1},
-            new UserChat() { UserId = 1, ChatId = 2},
-        };
-
-        static List<Message> messages = new List<Message>()
-        {
-            new Message() {Id = 1, ChatId = 1, Content = "Aaaaa", UserId = 1, Username = "Pero"},
-            new Message() {Id = 2, ChatId = 1, Content = "Be", UserId = 1, Username = "Pero"},
-            new Message() {Id = 3, ChatId = 1, Content = "Ce", UserId = 1, Username = "Pero"},
-            new Message() {Id = 4, ChatId = 1, Content = "De", UserId = 1, Username = "Pero"},
-        };
-        static List<Message> messages2 = new List<Message>()
-        {
-            new Message() {Id = 1, ChatId = 2, Content = "Aaaaa", UserId = 1, Username = "Pero"},
-            new Message() {Id = 2, ChatId = 2, Content = "Be", UserId = 1, Username = "Pero"},
-        };
-
+        List<UserChat> userChat = new List<UserChat>();
+        static List<Message> messages = new List<Message>();
         List<ChatRoom> chatRooms = new List<ChatRoom>();
-
 
 
         public IEnumerable<ChatRoom> GetAllChats(int userId)
@@ -48,6 +31,23 @@ namespace ChatApplicationServer.Repository
         {
             var chatRoom = chatRooms.First(cr => cr.Id == chatId);
             return chatRoom.Users;
+        }
+
+        public IEnumerable<UserChat> GetUserChats(int userId)
+        {
+            var userChats = userChat.FindAll(uC => uC.UserId == userId);
+            return userChats;
+        }
+        public IEnumerable<UserChat> GetUserChatsByChatId(int chatId)
+        {
+            var userChats = userChat.FindAll(uC => uC.ChatId == chatId);
+            return userChats;
+        }
+
+        public void UpdateUserChat(UserChat uC)
+        {
+            userChat.Remove(userChat.Find(uc => uc.UserId == uC.UserId && uc.ChatId == uC.ChatId));
+            userChat.Add(uC);
         }
 
         public void AddMessage(MessageDTO messageDTO)
@@ -91,7 +91,18 @@ namespace ChatApplicationServer.Repository
                 userChat.Add(new UserChat()
                 {
                     ChatId = chatRoomId,
-                    UserId = userId
+                    UserId = userId,
+                    Deleted = false
+                });
+            }
+            else
+            {
+                userChat.Remove(userChat.Find(uc => uc.UserId == userId && uc.ChatId == chatRoomId));
+                userChat.Add(new UserChat()
+                {
+                    ChatId = chatRoomId,
+                    UserId = userId,
+                    Deleted = false
                 });
             }
         }
@@ -100,8 +111,25 @@ namespace ChatApplicationServer.Repository
         {
             var uC = userChat.First(usrCh => usrCh.ChatId == chatId && usrCh.UserId == userId);
 
-            if(uC != null) 
-                userChat.Remove(uC);
+            if (uC != null)
+                uC.Deleted = true;
+
+            var userChats = userChat.FindAll(usrCh => usrCh.ChatId == chatId).Select(uc => uc.Deleted);
+            var delete = true;
+            foreach(var deleted in userChats)
+            {
+                if (!deleted)
+                {
+                    delete = false;
+                    break;
+                }
+            }
+
+            if (delete)
+            {
+                userChat.RemoveAll(uc => uc.ChatId == chatId);
+                chatRooms.Remove(chatRooms.Find(cR => cR.Id == chatId));
+            }
         }
     }
 }

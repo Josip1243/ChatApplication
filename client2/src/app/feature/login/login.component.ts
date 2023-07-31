@@ -13,6 +13,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { SignalrService } from 'src/app/core/services/signalr.service';
 
 @Component({
   selector: 'app-login',
@@ -34,7 +35,11 @@ export class LoginComponent implements OnInit {
   user = new User();
   errorMessage: string | null = null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private signalrService: SignalrService
+  ) {}
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
@@ -51,6 +56,8 @@ export class LoginComponent implements OnInit {
           this.loginForm.reset();
           this.authService.storeAccessToken(tokenDTO.accessToken);
           this.authService.storeRefreshToken(tokenDTO.refreshToken);
+          this.signalrService.startConnection();
+          setTimeout(() => {}, 1000);
           this.router.navigateByUrl('home');
         },
         error: (e) => {

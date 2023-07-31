@@ -5,6 +5,7 @@ import { TokenDTO } from 'src/app/shared/models/tokenDTO.model';
 import { ChatComponent } from '../active-chat/active-chat.component';
 import { UsersComponent } from '../chat/chat.component';
 import { SignalrService } from 'src/app/core/services/signalr.service';
+import { ChatService } from 'src/app/core/services/chat.service';
 
 @Component({
   selector: 'app-home',
@@ -19,9 +20,18 @@ export class HomeComponent implements OnInit {
     private signalrService: SignalrService
   ) {}
 
+  userId!: number;
+
   ngOnInit(): void {
+    this.authService.userId.subscribe((id) => {
+      this.userId = id;
+    });
+
+    this.signalrService.startConnection();
+    setTimeout(() => {}, 1000);
+
     setTimeout(() => {
-      this.signalrService.askServer();
+      this.signalrService.askServer(this.userId);
       this.signalrService.askServerListener();
       this.signalrService.receiveMessage();
     }, 1000);
