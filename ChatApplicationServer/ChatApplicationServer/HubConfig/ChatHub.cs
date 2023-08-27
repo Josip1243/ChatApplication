@@ -28,6 +28,10 @@ namespace ChatApplicationServer.HubConfig
             await Clients.Client(this.Context.ConnectionId).SendAsync("askServerListener", "Connection added!");
         }
 
+
+        // Implement trigger for adding chat
+
+
         public async Task disconnect()
         {
             var signalrConnectionId = this.Context.ConnectionId;

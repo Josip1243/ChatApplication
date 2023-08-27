@@ -129,6 +129,7 @@ namespace ChatApplicationServer.Repository
             {
                 userChat.RemoveAll(uc => uc.ChatId == chatId);
                 chatRooms.Remove(chatRooms.Find(cR => cR.Id == chatId));
+                messages.RemoveAll(m => m.ChatId == chatId);
             }
         }
     }
