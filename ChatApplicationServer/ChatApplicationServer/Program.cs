@@ -49,6 +49,7 @@ builder.Services.AddSingleton<UserRepositoryMock, UserRepositoryMock>();
 builder.Services.AddSingleton<ChatRepositoryMock, ChatRepositoryMock>();
 builder.Services.AddSingleton<ConnectionsRepositoryMock, ConnectionsRepositoryMock>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHostedService<DeleteChatsService>();
 
 
 var app = builder.Build();

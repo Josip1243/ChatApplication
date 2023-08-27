@@ -6,6 +6,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -17,14 +18,14 @@ import { MessageDTO } from 'src/app/shared/models/messageDTO';
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule, FormsModule],
   templateUrl: './active-chat.component.html',
   styleUrls: ['./active-chat.component.scss'],
 })
 export class ChatComponent implements OnInit {
   chatRoom?: ChatDTO;
   username!: string;
-  text!: string;
+  text: string = '';
   shouldStickToBottom = true;
   @ViewChild('chatBody') chatBody!: ElementRef;
 
@@ -91,13 +92,14 @@ export class ChatComponent implements OnInit {
   }
 
   sendMessage() {
-    if (this.chatRoom) {
+    if (this.chatRoom && this.text != '') {
       let newMessage = new MessageDTO();
       newMessage.chatId = this.chatRoom.id;
-      newMessage.content = 'Helllllloooooooo';
+      newMessage.content = this.text;
       newMessage.sentAt = new Date();
       newMessage.username = this.username;
 
+      this.text = '';
       this.signalrService.sendMessage(newMessage);
     }
   }

@@ -25,13 +25,12 @@
         </div>
     </div>
 
-
     <div class="chat-input">
         <div class="chat-input-info">
             <p>Poruka:</p>
         </div>
         <div class="chat-input-text">
-            <input type="text" [value]="text" placeholder="Type message here...">
+            <input type="text" [(ngModel)]="text" placeholder="Type message here...">
         </div>
         <div class="chat-input-button">
             <button (click)="sendMessage()">Send</button>
