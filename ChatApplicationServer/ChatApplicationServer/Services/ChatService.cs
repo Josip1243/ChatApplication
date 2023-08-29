@@ -26,6 +26,7 @@ namespace ChatApplicationServer.Services
 
         public IEnumerable<ChatNameDTO> GetAllChats(string username)
         {
+            
             var user = _userRepositoryMock.GetUser(username);
             var chats = _chatRepositoryMock.GetAllChats(user.ValueOrDefault().Id);
             var userChats = _chatRepositoryMock.GetUserChats(user.ValueOrDefault().Id);

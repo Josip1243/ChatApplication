@@ -18,9 +18,9 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
-builder.Services.AddDbContextPool<ChatContext>( options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnectionString"))
-);
+//builder.Services.AddDbContextPool<ChatContext>( options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnectionString"))
+//);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

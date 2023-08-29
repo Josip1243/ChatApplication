@@ -7,9 +7,5 @@
         public List<Message> Messages { get; set; }
         public List<User> Users{ get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime DeleteAfter { get; set; }
-        public DateTime LastActivity { get; set; }
-        public bool IsGroup { get; set; }
-        public bool ShouldDelete { get; set; }
     }
 }
