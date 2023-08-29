@@ -25,6 +25,7 @@ import { MessageDTO } from 'src/app/shared/models/messageDTO';
 export class ChatComponent implements OnInit {
   chatRoom?: ChatDTO;
   username!: string;
+  chatId!: number;
   text: string = '';
   shouldStickToBottom = true;
   @ViewChild('chatBody') chatBody!: ElementRef;
@@ -36,10 +37,16 @@ export class ChatComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.chatService.currentChat.subscribe((num) => {
-      this.chatService.getChat(num).subscribe((chat) => {
-        this.chatRoom = chat;
-      });
+    this.chatService.refreshChats();
+
+    // this.chatService.currentChat.subscribe((num) => {
+    //   this.chatService.getChat(num).subscribe((chat) => {
+    //     this.chatRoom = chat;
+    //   });
+    // });
+
+    this.chatService.currentChat.subscribe((c) => {
+      this.chatRoom = c;
     });
 
     this.authService.username.subscribe((u) => {

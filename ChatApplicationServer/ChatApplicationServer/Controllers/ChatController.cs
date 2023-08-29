@@ -42,7 +42,12 @@ namespace ChatApplicationServer.Controllers
         [HttpGet("getChat"), Authorize]
         public async Task<ActionResult<IEnumerable<ChatDTO>>> GetChat(int chatId)
         {
-            return Ok(_chatService.GetChat(chatId));
+            var currentUsername = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
+            var chat = _chatService.GetChat(chatId, currentUsername);
+
+            if (chat != null)
+                return Ok(chat);
+            return NoContent();
         }
 
         [HttpGet("addChat"), Authorize]

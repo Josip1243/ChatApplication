@@ -1,7 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { NONE_TYPE } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
 import { ChatNameDTO, ChatDTO } from 'src/app/shared/models/chat.models';
 
 @Injectable({
@@ -9,13 +10,38 @@ import { ChatNameDTO, ChatDTO } from 'src/app/shared/models/chat.models';
 })
 export class ChatService {
   baseUrl = 'http://localhost:5220/';
-  private currentChatId = new BehaviorSubject<number>(1);
-  currentChat = this.currentChatId.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {}
+  // private currentChatId = new BehaviorSubject<number>(0);
+  // currentChat = this.currentChatId.asObservable();
 
-  public getAllChats(): Observable<ChatNameDTO[]> {
-    return this.http.get<ChatNameDTO[]>(this.baseUrl + 'api/chat/getAllChats');
+  private currentChatSubject = new ReplaySubject<ChatDTO>();
+  currentChat = this.currentChatSubject.asObservable();
+
+  private chatsSubject = new BehaviorSubject<ChatNameDTO[]>([]);
+  allChats = this.chatsSubject.asObservable();
+
+  constructor(private http: HttpClient) {}
+
+  public refreshChats() {
+    this.getAllChats();
+  }
+
+  public resetChatService() {
+    debugger;
+    this.currentChatSubject.complete();
+    this.chatsSubject.complete();
+    this.currentChatSubject = new ReplaySubject<ChatDTO>();
+    this.chatsSubject = new BehaviorSubject<ChatNameDTO[]>([]);
+    this.currentChat = this.currentChatSubject.asObservable();
+    this.allChats = this.chatsSubject.asObservable();
+  }
+
+  public getAllChats() {
+    this.http
+      .get<ChatNameDTO[]>(this.baseUrl + 'api/chat/getAllChats')
+      .subscribe((c) => {
+        this.chatsSubject.next(c);
+      });
   }
 
   public getChat(chatId: number): Observable<ChatDTO> {
@@ -27,7 +53,9 @@ export class ChatService {
   }
 
   public changeChat(chatId: number) {
-    this.currentChatId.next(chatId);
+    this.getChat(chatId).subscribe((c) => {
+      this.currentChatSubject.next(c);
+    });
   }
 
   public addChat(username: string) {

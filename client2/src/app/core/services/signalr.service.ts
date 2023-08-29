@@ -67,6 +67,20 @@ export class SignalrService {
     this.hubConnection.on('disconnect', (msg) => {
       console.log(msg);
       this.stopConnection();
+      this.chatService.resetChatService();
+    });
+  }
+
+  addChat(currentUsername: string, targetedUsername: string) {
+    this.hubConnection
+      .invoke('addChat', currentUsername, targetedUsername)
+      .catch((err) => console.log('Error while adding chat.' + err));
+  }
+
+  addChatListener() {
+    this.hubConnection.on('addChatListener', () => {
+      console.log('Trigered addChatListener');
+      this.chatService.refreshChats();
     });
   }
 
@@ -79,12 +93,7 @@ export class SignalrService {
   receiveMessage() {
     this.hubConnection.on('receiveMessage', (msg) => {
       this.onSignalRMessage.emit(msg);
-    });
-  }
-
-  refreshChatList() {
-    this.hubConnection.on('refreshChatList', () => {
-      this.chatService.getAllChats();
+      this.chatService.refreshChats();
     });
   }
 }

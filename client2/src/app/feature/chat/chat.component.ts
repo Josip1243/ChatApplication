@@ -9,6 +9,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SignalrService } from 'src/app/core/services/signalr.service';
 
 @Component({
   selector: 'app-users',
@@ -29,12 +30,14 @@ export class UsersComponent implements OnInit {
   chats!: ChatNameDTO[];
   isLoggedIn: boolean = true;
   addChatFlag: boolean = false;
+  username!: string;
   @Input() opened!: boolean;
   @Output() openedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   constructor(
     private chatService: ChatService,
-    private authService: AuthService
+    private authService: AuthService,
+    private signalRService: SignalrService
   ) {}
 
   ngOnInit(): void {
@@ -42,18 +45,19 @@ export class UsersComponent implements OnInit {
       this.isLoggedIn = logged;
 
       if (logged) {
-        this.chatService.getAllChats().subscribe((c) => {
+        this.chatService.allChats.subscribe((c) => {
           this.chats = c;
         });
       }
     });
+
+    this.authService.username.subscribe((u) => {
+      this.username = u;
+    });
   }
 
   refreshChats() {
-    this.chatService.getAllChats().subscribe((c) => {
-      this.chats = c;
-      this.addChatFlag = false;
-    });
+    this.chatService.refreshChats();
   }
 
   changeChat(chatId: number) {
@@ -62,9 +66,12 @@ export class UsersComponent implements OnInit {
   }
 
   addChat(searchValue: string) {
-    this.chatService.addChat(searchValue).subscribe(() => {
-      this.refreshChats();
-    });
+    // this.chatService.addChat(searchValue).subscribe(() => {
+    //   this.refreshChats();
+    // });
+
+    this.signalRService.addChat(this.username, searchValue);
+    this.addChatFlag = false;
   }
 
   removeChat(chatId: number) {

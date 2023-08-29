@@ -30,12 +30,15 @@ namespace ChatApplicationServer.Services
             var chats = _chatRepositoryMock.GetAllChats(user.ValueOrDefault().Id);
             var userChats = _chatRepositoryMock.GetUserChats(user.ValueOrDefault().Id);
 
-            return mapToChatNameDTO(chats, userChats);
+            return mapToChatNameDTO(chats, userChats, username);
         }
 
-        public ChatDTO GetChat(int chatId)
+        public ChatDTO GetChat(int chatId, string currentUsername)
         {
-            return mapToChatDTO(_chatRepositoryMock.GetChat(chatId));
+            var chat = _chatRepositoryMock.GetChat(chatId);
+            if (chat != null)
+                return mapToChatDTO(chat, currentUsername);
+            return null;
         }
 
         public IEnumerable<User> GetChatUsers(int chatId)
@@ -62,7 +65,9 @@ namespace ChatApplicationServer.Services
                     var user1Chats = _chatRepositoryMock.GetAllChats(user1.Id);
                     var user2Chats = _chatRepositoryMock.GetAllChats(user2.Id);
 
-                    var same = user1Chats.FirstOrDefault(uC => user2Chats.Select(u => u.Id).Contains(uC.Id));
+                    //var same = user1Chats.FirstOrDefault(uC => user2Chats.Select(u => u.Id).Contains(uC.Id));
+
+                    var same = user1Chats.FirstOrDefault(uC => uC.Users.Any(u => u.Id == user2.Id));
 
                     if (same is not null)
                     {
@@ -75,20 +80,21 @@ namespace ChatApplicationServer.Services
                                 _chatRepositoryMock.UpdateUserChat(userChat);
                             }
                         }
-                        return mapToChatDTO(same);
+                        return mapToChatDTO(same, currentUser);
                     }
 
                     var newChat = _chatRepositoryMock.AddChat(user1, user2);
 
-                    return mapToChatDTO(newChat);
+                    return mapToChatDTO(newChat, currentUser);
                 }
             }
             return null;
         }
 
-        private ChatDTO mapToChatDTO(ChatRoom chatRoom)
+        private ChatDTO mapToChatDTO(ChatRoom chatRoom, string currentUsername)
         {
-            return new ChatDTO() { Id = chatRoom.Id, Name = chatRoom.Name, Messages = mapToMessageDTO(chatRoom.Messages) };
+            var chatName = chatRoom.Name.Replace(currentUsername, "").Trim();
+            return new ChatDTO() { Id = chatRoom.Id, Name = chatName, Messages = mapToMessageDTO(chatRoom.Messages) };
         }
 
         private List<MessageDTO> mapToMessageDTO(List<Message> messages)
@@ -114,7 +120,7 @@ namespace ChatApplicationServer.Services
             return result;
         }
 
-        private IEnumerable<ChatNameDTO> mapToChatNameDTO(IEnumerable<ChatRoom> chatRooms, IEnumerable<UserChat> userChats)
+        private IEnumerable<ChatNameDTO> mapToChatNameDTO(IEnumerable<ChatRoom> chatRooms, IEnumerable<UserChat> userChats, string currentUsername)
         {
             var chatDTOs = new List<ChatNameDTO>();
 
@@ -123,8 +129,9 @@ namespace ChatApplicationServer.Services
                 foreach (var chatRoom in chatRooms)
                 {
                     var userChat = userChats.FirstOrNone(uc => uc.ChatId == chatRoom.Id);
+                    var chatName = chatRoom.Name.Replace(currentUsername, "").Trim();
 
-                    chatDTOs.Add(new ChatNameDTO() { Id = chatRoom.Id, Name = chatRoom.Name, Deleted = userChat.ValueOrDefault().Deleted });
+                    chatDTOs.Add(new ChatNameDTO() { Id = chatRoom.Id, Name = chatName, Deleted = userChat.ValueOrDefault().Deleted });
                 }
             }
 
