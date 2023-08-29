@@ -93,8 +93,11 @@ export class UsersComponent implements OnInit {
     );
   }
 
-  userOnline() {
-    return true;
+  userOnline(chat: ChatNameDTO) {
+    if (chat.userInfo.onlineStatus) {
+      return true;
+    }
+    return false;
   }
 
   removeChat(chatId: number) {

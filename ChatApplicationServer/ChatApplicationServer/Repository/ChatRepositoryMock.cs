@@ -51,6 +51,10 @@ namespace ChatApplicationServer.Repository
             return users;
         }
 
+        public IEnumerable<UsersChatRoom> GetAllUsersChatRooms()
+        {
+            return _appContext.UsersChatRooms.ToList();
+        }
         public IEnumerable<UsersChatRoom> GetUserChats(int userId)
         {
             var userChats = _appContext.UsersChatRooms.Where(uC => uC.UserId == userId);

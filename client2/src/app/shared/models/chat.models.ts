@@ -16,6 +16,13 @@ export class ChatNameDTO {
   id!: number;
   name!: string;
   deleted!: boolean;
+  userInfo!: UserInfoDTO;
+}
+
+export class UserInfoDTO {
+  id!: number;
+  username!: string;
+  onlineStatus!: boolean;
 }
 
 export class ChatDTO {

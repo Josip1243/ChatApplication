@@ -69,9 +69,23 @@ export class SignalrService {
   }
   disconnectListener() {
     this.hubConnection.on('disconnect', (msg) => {
+      debugger;
       console.log(msg);
       this.stopConnection();
       this.chatService.resetChatService();
+    });
+  }
+  onlineStatusListener() {
+    this.hubConnection.on('onlineStatusChange', () => {
+      debugger;
+      this.chatService.refreshChats();
+    });
+  }
+
+  testListener() {
+    this.hubConnection.on('test', () => {
+      debugger;
+      console.log('TEEEEEEEEEESSSSSSSSSTTTTTTTT!!!!!!!!!!');
     });
   }
 

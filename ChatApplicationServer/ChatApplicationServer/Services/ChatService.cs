@@ -130,14 +130,15 @@ namespace ChatApplicationServer.Services
                 foreach (var chatRoom in chatRooms)
                 {
                     var userChat = userChats.FirstOrNone(uc => uc.ChatRoomId == chatRoom.Id && uc.UserId == user.Id).ValueOrDefault();
-
-                    var otherUserId = userChats.Select(uc => uc.UserId).FirstOrDefault(uc => uc != user.Id);
+                    var otherUserId = _chatRepositoryMock.GetUserChatsByChatId(chatRoom.Id).Select(uc => uc.UserId).FirstOrDefault(uc => uc != user.Id);
                     var otherUser = _userRepositoryMock.GetUsers().ToList().FirstOrDefault(u => u.Id == otherUserId);
-
                     var chatName = otherUser.Username;
 
+                    var onlineStatus = _connectionService.GetConnections().Any(c => c.UserId == otherUserId);
+
                     if (!userChat.Deleted)
-                        chatDTOs.Add(new ChatNameDTO() { Id = chatRoom.Id, Name = chatName, Deleted = userChat.Deleted });
+                        chatDTOs.Add(new ChatNameDTO() { Id = chatRoom.Id, Name = chatName, Deleted = userChat.Deleted, 
+                            UserInfo = new UserInfoDTO() { Id = otherUserId, Username = otherUser.Username, OnlineStatus = onlineStatus } });
                 }
             }
 

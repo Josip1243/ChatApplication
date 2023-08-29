@@ -37,8 +37,10 @@
         <mat-list-item *ngFor="let chat of filteredChats">
             <div class="users-list" *ngIf="!chat.deleted">
                 <div>
-                    <mat-icon class="green-dot" matTooltip="Online" *ngIf="userOnline()">fiber_manual_record</mat-icon>
-                    <mat-icon class="red-dot" matTooltip="Offline" *ngIf="!userOnline()">fiber_manual_record</mat-icon>
+                    <mat-icon class="green-dot" matTooltip="Online"
+                        *ngIf="userOnline(chat)">fiber_manual_record</mat-icon>
+                    <mat-icon class="red-dot" matTooltip="Offline"
+                        *ngIf="!userOnline(chat)">fiber_manual_record</mat-icon>
                 </div>
                 <button mat-button (click)="changeChat(chat.id)" class="user-name">{{chat.name}}</button>
                 <button mat-icon-button class="user-delete" (click)="removeChat(chat.id)">

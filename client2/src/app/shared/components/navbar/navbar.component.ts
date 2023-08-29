@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { AppRoutingModule } from 'src/app/app-routing.module';
@@ -43,6 +43,7 @@ export class NavbarComponent implements OnInit {
   }
 
   logout() {
+    this.opened = false;
     this.authService.logout('login');
   }
 }

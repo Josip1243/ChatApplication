@@ -1,5 +1,6 @@
 ﻿using ChatApplicationServer.DTO;
 using ChatApplicationServer.Models;
+using ChatApplicationServer.Models2;
 using ChatApplicationServer.Repository;
 using ChatApplicationServer.Services;
 using Microsoft.AspNet.SignalR.Messaging;
@@ -53,8 +54,28 @@ namespace ChatApplicationServer.HubConfig
         public async Task disconnect()
         {
             var signalrConnectionId = this.Context.ConnectionId;
+            var connections = _connectionService.GetConnections();
+            var connection = _connectionService.GetConnections().FirstOrDefault(c => c.SignalRid == signalrConnectionId);
+            var userId = connection.UserId;
+
+            var chatRoomIds = _chatRepositoryMock.GetUserChats(userId).Select(uc => uc.ChatRoomId).ToList();
+
+            List<string> connectionsToSendTo = new List<string>();
+
+            foreach (var chatRoomId in chatRoomIds)
+            {
+                var user = _chatRepositoryMock.GetChatUsers(chatRoomId).FirstOrDefault(u => u.Id != userId);
+                var tempConnection = connections.FirstOrDefault(c => c.UserId == user.Id);
+
+                if (tempConnection != null)
+                {
+                    var tempConnectionId = tempConnection.SignalRid;
+                    connectionsToSendTo.Add(tempConnectionId);
+                }
+            }
             _connectionService.RemoveConnection(signalrConnectionId);
-            await Clients.Client(this.Context.ConnectionId).SendAsync("disconnect", "Connection removed!");
+            await Clients.Client(Context.ConnectionId).SendAsync("disconnect", "Connection removed!");
+            await Clients.Clients(connectionsToSendTo).SendAsync("onlineStatusChange");
         }
 
         public async Task sendMessage(MessageDTO messageDTO)

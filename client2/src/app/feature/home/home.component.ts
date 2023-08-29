@@ -36,6 +36,8 @@ export class HomeComponent implements OnInit {
       this.signalrService.receiveMessage();
       this.signalrService.addChatListener();
       this.signalrService.disconnectListener();
+      this.signalrService.onlineStatusListener();
+      this.signalrService.testListener();
     }, 1000);
   }
 
