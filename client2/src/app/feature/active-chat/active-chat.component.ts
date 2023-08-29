@@ -25,6 +25,7 @@ import { MessageDTO } from 'src/app/shared/models/messageDTO';
 export class ChatComponent implements OnInit {
   chatRoom?: ChatDTO;
   username!: string;
+  userId!: number;
   chatId!: number;
   text: string = '';
   shouldStickToBottom = true;
@@ -51,6 +52,10 @@ export class ChatComponent implements OnInit {
 
     this.authService.username.subscribe((u) => {
       this.username = u;
+    });
+
+    this.authService.userId.subscribe((u) => {
+      this.userId = u;
     });
 
     this.signalrService.onSignalRMessage.subscribe((msg) => {
@@ -105,6 +110,7 @@ export class ChatComponent implements OnInit {
       newMessage.content = this.text;
       newMessage.sentAt = new Date();
       newMessage.username = this.username;
+      newMessage.userId = this.userId;
 
       this.text = '';
       this.signalrService.sendMessage(newMessage);

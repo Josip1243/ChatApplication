@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ChatApplicationServer.HubConfig;
+using ChatApplicationServer.Models2;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,9 +19,10 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
-//builder.Services.AddDbContextPool<ChatContext>( options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnectionString"))
-//);
+
+builder.Services.AddDbContext<ChatAppContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnectionString"))
+);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -39,15 +41,18 @@ builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
 });
-
+builder.Services.AddControllersWithViews()
+    .AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ChatService, ChatService>();
 builder.Services.AddScoped<ConnectionService, ConnectionService>();
-builder.Services.AddSingleton<IAuthService, AuthService>();
-builder.Services.AddSingleton<UserRepositoryMock, UserRepositoryMock>();
-builder.Services.AddSingleton<ChatRepositoryMock, ChatRepositoryMock>();
-builder.Services.AddSingleton<ConnectionsRepositoryMock, ConnectionsRepositoryMock>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<UserRepositoryMock, UserRepositoryMock>();
+builder.Services.AddScoped<ChatRepositoryMock, ChatRepositoryMock>();
+builder.Services.AddScoped<ConnectionsRepositoryMock, ConnectionsRepositoryMock>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHostedService<DeleteChatsService>();
 

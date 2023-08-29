@@ -1,4 +1,5 @@
 ﻿using ChatApplicationServer.Models;
+using ChatApplicationServer.Models2;
 using Microsoft.AspNetCore.Mvc;
 using Optional;
 
@@ -6,36 +7,34 @@ namespace ChatApplicationServer.Repository
 {
     public class UserRepositoryMock
     {
-        List<User> users;
+        private ChatAppContext _appContext;
 
-        public UserRepositoryMock()
+        public UserRepositoryMock(ChatAppContext appContext)
         {
-            users = new List<User>()
-            {
-                new User { Id = 1, Username = "Marko"}
-            };
+            _appContext = appContext;
         }
 
         public Option<User> GetUser(string username)
         {
-            return users.FirstOrDefault(u => u.Username == username).SomeNotNull();
+            return _appContext.Users.FirstOrDefault(u => u.Username == username).SomeNotNull();
         }
 
         public void UpdateUser(User user)
         {
-            users.Remove(users.FirstOrDefault(u => u.Username == user.Username));
-            users.Add(user);
+            var userToUpdate = _appContext.Users.FirstOrDefault(u => u.Id == user.Id);
+            userToUpdate = user;
+            _appContext.SaveChanges();
         }
 
         public List<User> GetUsers()
         {
-            return users;
+            return _appContext.Users.ToList();
         }
 
         public bool RegisterUser(User user)
         {
-            user.Id = users.Count() + 1;
-            users.Add(user);
+            _appContext.Users.Add(user);
+            _appContext.SaveChanges();
             return true;
         }
     }

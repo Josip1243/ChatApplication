@@ -11,10 +11,7 @@ import { ChatNameDTO, ChatDTO } from 'src/app/shared/models/chat.models';
 export class ChatService {
   baseUrl = 'http://localhost:5220/';
 
-  // private currentChatId = new BehaviorSubject<number>(0);
-  // currentChat = this.currentChatId.asObservable();
-
-  private currentChatSubject = new ReplaySubject<ChatDTO>();
+  private currentChatSubject = new ReplaySubject<ChatDTO | undefined>();
   currentChat = this.currentChatSubject.asObservable();
 
   private chatsSubject = new BehaviorSubject<ChatNameDTO[]>([]);
@@ -26,11 +23,15 @@ export class ChatService {
     this.getAllChats();
   }
 
+  public deleteChat() {
+    this.refreshChats();
+    this.currentChatSubject.next(undefined);
+  }
+
   public resetChatService() {
-    debugger;
     this.currentChatSubject.complete();
     this.chatsSubject.complete();
-    this.currentChatSubject = new ReplaySubject<ChatDTO>();
+    this.currentChatSubject = new ReplaySubject<ChatDTO | undefined>();
     this.chatsSubject = new BehaviorSubject<ChatNameDTO[]>([]);
     this.currentChat = this.currentChatSubject.asObservable();
     this.allChats = this.chatsSubject.asObservable();

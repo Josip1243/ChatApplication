@@ -1,29 +1,36 @@
 ﻿using ChatApplicationServer.Models;
+using ChatApplicationServer.Models2;
+using System;
 
 namespace ChatApplicationServer.Repository
 {
     public class ConnectionsRepositoryMock
     {
-        List<Connection> connections;
+        private ChatAppContext _appContext;
 
-        public ConnectionsRepositoryMock()
+        public ConnectionsRepositoryMock(ChatAppContext appContext)
         {
-            connections = new List<Connection>();
+            _appContext = appContext;
         }
 
         public void AddConnection(Connection connection)
         {
-            connections.Add(connection);
+            _appContext.Connections.Add(connection);
+            _appContext.SaveChanges();
         }
 
         public List<Connection> GetConnections()
         {
-            return connections;
+            return _appContext.Connections.ToList();
         }
 
         public void RemoveConnection(Connection connection)
         {
-            connections.Remove(connection);
+            if (connection != null)
+            {
+                _appContext.Connections.Remove(connection);
+                _appContext.SaveChanges();
+            }
         }
     }
 }

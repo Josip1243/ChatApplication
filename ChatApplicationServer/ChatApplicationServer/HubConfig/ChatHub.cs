@@ -44,9 +44,7 @@ namespace ChatApplicationServer.HubConfig
             userIds.Add(currentUser.Id);
             userIds.Add(targetedUser.Id);
 
-            var connections = _connectionService.GetConnections().Where(c => userIds.Contains(c.UserId)).Select(con => con.SignalRId);
-
-            var chat = _chatService.AddChat(currentUsername, targetedUsername);
+            _chatService.AddChat(currentUsername, targetedUsername);
 
             await Clients.Client(this.Context.ConnectionId).SendAsync("addChatListener");
         }
@@ -69,7 +67,7 @@ namespace ChatApplicationServer.HubConfig
             {
                 _chatRepositoryMock.AddUserChat(messageDTO.ChatId, user.Id);
             }
-            var connections = _connectionService.GetConnections(chatUsers.Select(u => u.Id)).Select(con => con.SignalRId);
+            var connections = _connectionService.GetConnections(chatUsers.Select(u => u.Id)).Select(con => con.SignalRid);
 
             await Clients.Clients(connections).SendAsync("receiveMessage", messageDTO);
         }

@@ -203,3 +203,6 @@ D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\obj\Debu
 D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\obj\Debug\net6.0\ChatApplicationServer.pdb
 D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\obj\Debug\net6.0\ChatApplicationServer.genruntimeconfig.cache
 D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\obj\Debug\net6.0\ref\ChatApplicationServer.dll
+D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\bin\Debug\net6.0\Microsoft.AspNetCore.JsonPatch.dll
+D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\bin\Debug\net6.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+D:\Fakultet\ChatApplication\ChatApplicationServer\ChatApplicationServer\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll

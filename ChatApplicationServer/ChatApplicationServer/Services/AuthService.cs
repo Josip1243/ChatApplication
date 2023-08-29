@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using ChatApplicationServer.DTO;
 using ChatApplicationServer.Models;
+using ChatApplicationServer.Models2;
 using ChatApplicationServer.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -29,7 +30,7 @@ namespace ChatApplicationServer.Services
             {
                 Username = request.Username,
                 PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt
+                PasswordSalt = passwordSalt,
             };
 
             return _userRepositoryMock.RegisterUser(user);

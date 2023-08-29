@@ -1,4 +1,5 @@
 ﻿using ChatApplicationServer.Models;
+using ChatApplicationServer.Models2;
 using ChatApplicationServer.Repository;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -21,7 +22,7 @@ namespace ChatApplicationServer.Services
 
         public async void AddConnection(int userId, string signalrConnectionId)
         {
-            var newConnection = new Connection() { UserId = userId, SignalRId = signalrConnectionId, timeStamp = DateTime.Now };
+            var newConnection = new Connection() { UserId = userId, SignalRid = signalrConnectionId, TimeStamp = DateTime.Now };
 
             connectionRepository.AddConnection(newConnection);
 
@@ -32,13 +33,13 @@ namespace ChatApplicationServer.Services
 
         public async void RemoveConnection(string connectionId)
         {
-            var tempConn = connectionRepository.GetConnections().FirstOrDefault(conn => conn.SignalRId == connectionId);
+            var tempConn = connectionRepository.GetConnections().ToList().FirstOrDefault(conn => conn.SignalRid == connectionId);
             connectionRepository.RemoveConnection(tempConn);
         }
 
         public async Task<Connection> GetConnection(int userId, string connectionId)
         {
-            return connectionRepository.GetConnections().FirstOrDefault(conn => conn.UserId == userId && conn.SignalRId == connectionId);
+            return connectionRepository.GetConnections().FirstOrDefault(conn => conn.UserId == userId && conn.SignalRid == connectionId);
         }
 
         public List<Connection> GetConnections()

@@ -1,58 +1,77 @@
 ﻿using ChatApplicationServer.DTO;
 using ChatApplicationServer.Models;
+using ChatApplicationServer.Models2;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Data.Entity;
 using System.Runtime.Intrinsics.X86;
 
 namespace ChatApplicationServer.Repository
 {
     public class ChatRepositoryMock
     {
-        List<UserChat> userChat = new List<UserChat>();
-        static List<Message> messages = new List<Message>();
-        List<ChatRoom> chatRooms = new List<ChatRoom>();
+        private ChatAppContext _appContext;
 
+        public ChatRepositoryMock(ChatAppContext appContext)
+        {
+            _appContext = appContext;
+        }
 
         public IEnumerable<ChatRoom> GetAllChats(int userId)
         {
-            var chatsInvolved = userChat.Where(x => x.UserId == userId).Select(x => x.ChatId);
-            var chats = chatRooms.Where(x => chatsInvolved.Contains(x.Id));
+            var chatsInvolved = _appContext.UsersChatRooms.Where(x => x.UserId == userId).Select(x => x.ChatRoomId);
+            var chats = _appContext.ChatRooms.Where(x => chatsInvolved.Contains(x.Id));
 
             return chats;
         }
 
-        public ChatRoom GetChat(int chatId)
+        public ChatRoomDTO GetChat(int chatId, string currentUsername)
         {
-            var chat = chatRooms.First(x => x.Id == chatId);
-            chat.Messages = messages.FindAll(x => x.ChatId == chatId);
-            return chat;
+            var chat = _appContext.ChatRooms.First(x => x.Id == chatId);
+            var allMessages = _appContext.Messages.Where(x => x.ChatId == chatId).ToList();
+            return mapChatRoomToChatRoomDTO(chat, allMessages, currentUsername);
+        }
+        private ChatRoomDTO mapChatRoomToChatRoomDTO(ChatRoom chatRoom, List<Message> allMessages, string currentUsername)
+        {
+            var chatRoomDTO = new ChatRoomDTO()
+            {
+                Id = chatRoom.Id,
+                Name = chatRoom.Name.Replace(currentUsername, "").Trim(),
+                Messages = allMessages
+            };
+
+            return chatRoomDTO;
         }
 
         public IEnumerable<User> GetChatUsers(int chatId)
         {
-            var chatRoom = chatRooms.First(cr => cr.Id == chatId);
-            return chatRoom.Users;
+            var userIds = _appContext.UsersChatRooms.Where(cr => cr.ChatRoomId == chatId).Select(uCR => uCR.UserId).ToList();
+            var users = _appContext.Users.Where(user => userIds.Contains(user.Id)).ToList();
+
+            return users;
         }
 
-        public IEnumerable<UserChat> GetUserChats(int userId)
+        public IEnumerable<UsersChatRoom> GetUserChats(int userId)
         {
-            var userChats = userChat.FindAll(uC => uC.UserId == userId);
+            var userChats = _appContext.UsersChatRooms.Where(uC => uC.UserId == userId);
             return userChats;
         }
-        public IEnumerable<UserChat> GetUserChatsByChatId(int chatId)
+        public IEnumerable<UsersChatRoom> GetUserChatsByChatId(int chatId)
         {
-            var userChats = userChat.FindAll(uC => uC.ChatId == chatId);
+            var userChats = _appContext.UsersChatRooms.Where(uC => uC.ChatRoomId == chatId);
             return userChats;
         }
 
-        public void UpdateUserChat(UserChat uC)
+        public void UpdateUserChat(UsersChatRoom userChatRoom)
         {
-            userChat.Remove(userChat.Find(uc => uc.UserId == uC.UserId && uc.ChatId == uC.ChatId));
-            userChat.Add(uC);
+            var temp = _appContext.UsersChatRooms.FirstOrDefault(uc => uc.UserId == userChatRoom.UserId && uc.ChatRoomId == userChatRoom.ChatRoomId);
+            temp = userChatRoom;
+            _appContext.SaveChanges();
         }
 
         public void AddMessage(MessageDTO messageDTO)
         {
-            messages.Add(new Message()
+            _appContext.Messages.Add(new Message()
             {
                 ChatId = messageDTO.ChatId,
                 Content = messageDTO.Content,
@@ -60,61 +79,74 @@ namespace ChatApplicationServer.Repository
                 UserId = messageDTO.UserId,
                 Username = messageDTO.Username,
             });
+            _appContext.SaveChanges();
+        }
+
+        public List<Message> GetAllMessages(int chatRoomId)
+        {
+            return _appContext.Messages.Where(m => m.ChatId == chatRoomId).ToList();
         }
 
         public ChatRoom AddChat(User user1, User user2)
         {
             var newChat = new ChatRoom()
             {
-                Id = chatRooms.Count() + 1,
                 CreatedAt = DateTime.Now,
                 Name = user2.Username + ' ' + user1.Username,
-                Users = new List<User>()
             };
-            newChat.Users.Add(user1);
-            newChat.Users.Add(user2);
+            _appContext.ChatRooms.Add(newChat);
+            _appContext.SaveChanges();
+            var chatId = newChat.Id;
 
-            userChat.Add(new UserChat()
+            _appContext.UsersChatRooms.Add(new UsersChatRoom()
             {
-                ChatId = newChat.Id,
+                ChatRoomId = chatId,
                 UserId = user1.Id,
             });
+            _appContext.UsersChatRooms.Add(new UsersChatRoom()      
+            {
+                ChatRoomId = chatId,
+                UserId = user2.Id,
+                Deleted = true
+            });
 
-            chatRooms.Add(newChat);
+            _appContext.SaveChanges();
             return newChat;
         } 
 
         public void AddUserChat(int chatRoomId, int userId)
         {
-            if (!userChat.Any(uc => uc.ChatId == chatRoomId && uc.UserId == userId))
+            if (!_appContext.UsersChatRooms.Any(uc => uc.ChatRoomId == chatRoomId && uc.UserId == userId))
             {
-                userChat.Add(new UserChat()
+                _appContext.UsersChatRooms.Add(new UsersChatRoom()
                 {
-                    ChatId = chatRoomId,
+                    ChatRoomId = chatRoomId,
                     UserId = userId,
                     Deleted = false
                 });
             }
             else
             {
-                userChat.Remove(userChat.Find(uc => uc.UserId == userId && uc.ChatId == chatRoomId));
-                userChat.Add(new UserChat()
+                _appContext.UsersChatRooms.Remove(_appContext.UsersChatRooms.FirstOrDefault(uc => uc.UserId == userId && uc.ChatRoomId == chatRoomId));
+                _appContext.UsersChatRooms.Add(new UsersChatRoom()
                 {
-                    ChatId = chatRoomId,
+                    ChatRoomId = chatRoomId,
                     UserId = userId,
                     Deleted = false
                 });
             }
+            _appContext.SaveChanges();
         }
 
         public void RemoveChat(int chatId, int userId)
         {
-            var uC = userChat.First(usrCh => usrCh.ChatId == chatId && usrCh.UserId == userId);
+            var uC = _appContext.UsersChatRooms.First(usrCh => usrCh.ChatRoomId == chatId && usrCh.UserId == userId);
 
             if (uC != null)
                 uC.Deleted = true;
+            _appContext.SaveChanges();
 
-            var userChats = userChat.FindAll(usrCh => usrCh.ChatId == chatId).Select(uc => uc.Deleted);
+            var userChats = _appContext.UsersChatRooms.Where(usrCh => usrCh.ChatRoomId == chatId).Select(uc => uc.Deleted).ToList();
             var delete = true;
             foreach(var deleted in userChats)
             {
@@ -127,10 +159,20 @@ namespace ChatApplicationServer.Repository
 
             if (delete)
             {
-                userChat.RemoveAll(uc => uc.ChatId == chatId);
-                chatRooms.Remove(chatRooms.Find(cR => cR.Id == chatId));
-                messages.RemoveAll(m => m.ChatId == chatId);
+                var userChatsToDelete = _appContext.UsersChatRooms.Where(uc => uc.ChatRoomId == chatId);
+                var chatRoomsToDelete = _appContext.ChatRooms.Where(uc => uc.Id == chatId);
+                var messagesToDelete = _appContext.Messages.Where(uc => uc.ChatId == chatId);
+
+                if (userChatsToDelete.Any())
+                    _appContext.UsersChatRooms.RemoveRange(userChatsToDelete);
+
+                if (chatRoomsToDelete.Any())
+                    _appContext.ChatRooms.RemoveRange(chatRoomsToDelete);
+
+                if (messagesToDelete.Any())
+                    _appContext.Messages.RemoveRange(messagesToDelete);
             }
+            _appContext.SaveChanges();
         }
     }
 }

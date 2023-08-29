@@ -7,6 +7,7 @@ import {
 import { AuthService } from './auth.service';
 import { ChatService } from './chat.service';
 import { MessageDTO } from 'src/app/shared/models/messageDTO';
+import { SnackbarService } from './snackbar.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,10 @@ export class SignalrService {
   hubConnection!: HubConnection;
   @Output() onSignalRMessage: EventEmitter<any> = new EventEmitter();
 
-  constructor(private chatService: ChatService) {}
+  constructor(
+    private chatService: ChatService,
+    private snackbarService: SnackbarService
+  ) {}
 
   startConnection = () => {
     this.hubConnection = new HubConnectionBuilder()
@@ -74,13 +78,16 @@ export class SignalrService {
   addChat(currentUsername: string, targetedUsername: string) {
     this.hubConnection
       .invoke('addChat', currentUsername, targetedUsername)
-      .catch((err) => console.log('Error while adding chat.' + err));
+      .catch((err) => {
+        console.log('Error while adding chat. ' + err);
+        this.snackbarService.showSnackbar('No user found.', 'info');
+      });
   }
 
   addChatListener() {
     this.hubConnection.on('addChatListener', () => {
-      console.log('Trigered addChatListener');
       this.chatService.refreshChats();
+      this.snackbarService.showSnackbar('Chat added.', 'info');
     });
   }
 

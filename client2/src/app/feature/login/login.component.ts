@@ -4,6 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { User } from 'src/app/shared/models/user.model';
 import { Router } from '@angular/router';
@@ -14,6 +15,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { SignalrService } from 'src/app/core/services/signalr.service';
+import { SnackbarService } from 'src/app/core/services/snackbar.service';
 
 @Component({
   selector: 'app-login',
@@ -38,7 +40,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private signalrService: SignalrService
+    private signalrService: SignalrService,
+    private snackbarService: SnackbarService
   ) {}
 
   ngOnInit(): void {
@@ -66,5 +69,13 @@ export class LoginComponent implements OnInit {
         },
       });
     }
+  }
+
+  onCopy(event: ClipboardEvent) {
+    event.preventDefault();
+    this.snackbarService.showSnackbar(
+      'Copying from this input is not allowed.',
+      'error'
+    );
   }
 }

@@ -3,13 +3,8 @@
     <h3>Chats:</h3>
 
     <div class="users-list-header">
-        <input>
+        <input [(ngModel)]="searchValue" (input)="filterChats()" placeholder="Search...">
         <div>
-            <button mat-icon-button>
-                <mat-icon>
-                    search
-                </mat-icon>
-            </button>
             <button mat-icon-button (click)="refreshChats()">
                 <mat-icon>
                     refresh
@@ -27,9 +22,9 @@
         <div class="add-chat">
             <span>Add chat:</span>
 
-            <input matInput #searchValue>
+            <input matInput #addChatValue (keyup.enter)="addChat(addChatValue.value)">
             <div>
-                <button mat-icon-button (click)="addChat(searchValue.value)">
+                <button mat-icon-button (click)="addChat(addChatValue.value)">
                     <mat-icon>
                         done
                     </mat-icon>
@@ -39,8 +34,12 @@
     </div>
 
     <mat-list>
-        <mat-list-item *ngFor="let chat of chats">
+        <mat-list-item *ngFor="let chat of filteredChats">
             <div class="users-list" *ngIf="!chat.deleted">
+                <div>
+                    <mat-icon class="green-dot" matTooltip="Online" *ngIf="userOnline()">fiber_manual_record</mat-icon>
+                    <mat-icon class="red-dot" matTooltip="Offline" *ngIf="!userOnline()">fiber_manual_record</mat-icon>
+                </div>
                 <button mat-button (click)="changeChat(chat.id)" class="user-name">{{chat.name}}</button>
                 <button mat-icon-button class="user-delete" (click)="removeChat(chat.id)">
                     <mat-icon>close</mat-icon>

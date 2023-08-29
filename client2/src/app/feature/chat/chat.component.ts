@@ -8,8 +8,11 @@ import { ChatNameDTO } from 'src/app/shared/models/chat.models';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SignalrService } from 'src/app/core/services/signalr.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { SnackbarService } from 'src/app/core/services/snackbar.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-users',
@@ -22,12 +25,16 @@ import { SignalrService } from 'src/app/core/services/signalr.service';
     MatButtonModule,
     ReactiveFormsModule,
     MatListModule,
+    FormsModule,
+    MatTooltipModule,
   ],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss'],
 })
 export class UsersComponent implements OnInit {
   chats!: ChatNameDTO[];
+  filteredChats!: ChatNameDTO[];
+  searchValue: string = '';
   isLoggedIn: boolean = true;
   addChatFlag: boolean = false;
   username!: string;
@@ -37,7 +44,8 @@ export class UsersComponent implements OnInit {
   constructor(
     private chatService: ChatService,
     private authService: AuthService,
-    private signalRService: SignalrService
+    private signalRService: SignalrService,
+    private snackbarService: SnackbarService
   ) {}
 
   ngOnInit(): void {
@@ -47,6 +55,8 @@ export class UsersComponent implements OnInit {
       if (logged) {
         this.chatService.allChats.subscribe((c) => {
           this.chats = c;
+          this.filteredChats = c;
+          this.searchValue = '';
         });
       }
     });
@@ -58,6 +68,7 @@ export class UsersComponent implements OnInit {
 
   refreshChats() {
     this.chatService.refreshChats();
+    this.snackbarService.showSnackbar('Refreshed chats.', 'info');
   }
 
   changeChat(chatId: number) {
@@ -65,18 +76,31 @@ export class UsersComponent implements OnInit {
     this.openedChange.emit(false);
   }
 
-  addChat(searchValue: string) {
-    // this.chatService.addChat(searchValue).subscribe(() => {
-    //   this.refreshChats();
-    // });
+  addChat(addChatValue: string) {
+    if (addChatValue != '') {
+      if (addChatValue == this.username) {
+        this.snackbarService.showSnackbar('Cannot add yourself.', 'info');
+      } else {
+        this.signalRService.addChat(this.username, addChatValue);
+        this.addChatFlag = false;
+      }
+    }
+  }
 
-    this.signalRService.addChat(this.username, searchValue);
-    this.addChatFlag = false;
+  filterChats() {
+    this.filteredChats = this.chats.filter((chat) =>
+      chat.name.includes(this.searchValue)
+    );
+  }
+
+  userOnline() {
+    return true;
   }
 
   removeChat(chatId: number) {
     this.chatService.removeChat(chatId).subscribe(() => {
-      this.refreshChats();
+      this.chatService.deleteChat();
+      this.snackbarService.showSnackbar('Removed chat.', 'info');
     });
   }
 }
