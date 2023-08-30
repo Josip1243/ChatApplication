@@ -1,5 +1,4 @@
 ﻿using ChatApplicationServer.Models;
-using ChatApplicationServer.Models2;
 using System;
 
 namespace ChatApplicationServer.Repository

@@ -1,7 +1,6 @@
 ﻿using Azure;
 using Azure.Core;
 using ChatApplicationServer.DTO;
-using ChatApplicationServer.Models;
 using ChatApplicationServer.Models2;
 using ChatApplicationServer.Repository;
 using ChatApplicationServer.Services;

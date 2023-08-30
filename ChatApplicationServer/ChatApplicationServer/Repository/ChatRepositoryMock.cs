@@ -1,6 +1,5 @@
 ﻿using ChatApplicationServer.DTO;
 using ChatApplicationServer.Models;
-using ChatApplicationServer.Models2;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Data.Entity;
@@ -172,18 +171,22 @@ namespace ChatApplicationServer.Repository
 
             if (delete)
             {
-                var userChatsToDelete = _appContext.UsersChatRooms.Where(uc => uc.ChatRoomId == chatId);
-                var chatRoomsToDelete = _appContext.ChatRooms.Where(uc => uc.Id == chatId);
-                var messagesToDelete = _appContext.Messages.Where(uc => uc.ChatId == chatId);
+                var userChatsToDelete = _appContext.UsersChatRooms.Where(uc => uc.ChatRoomId == chatId).ToList();
+                var messageChatsToDelete = _appContext.MessagesChatRooms.Where(uc => uc.ChatRoomId == chatId).ToList();
+                var chatRoomsToDelete = _appContext.ChatRooms.Where(uc => uc.Id == chatId).ToList();
+                var messagesToDelete = _appContext.Messages.Where(uc => uc.ChatId == chatId).ToList();
 
                 if (userChatsToDelete.Any())
                     _appContext.UsersChatRooms.RemoveRange(userChatsToDelete);
 
-                if (chatRoomsToDelete.Any())
-                    _appContext.ChatRooms.RemoveRange(chatRoomsToDelete);
+                if (messageChatsToDelete.Any())
+                    _appContext.MessagesChatRooms.RemoveRange(messageChatsToDelete);
 
                 if (messagesToDelete.Any())
                     _appContext.Messages.RemoveRange(messagesToDelete);
+
+                if (chatRoomsToDelete.Any())
+                    _appContext.ChatRooms.RemoveRange(chatRoomsToDelete);
             }
             _appContext.SaveChanges();
         }

@@ -1,5 +1,4 @@
 ﻿using ChatApplicationServer.Models;
-using ChatApplicationServer.Models2;
 using ChatApplicationServer.Repository;
 using Microsoft.AspNetCore.Mvc;
 

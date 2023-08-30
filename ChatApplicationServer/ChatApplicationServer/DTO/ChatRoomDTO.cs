@@ -1,4 +1,4 @@
-﻿using ChatApplicationServer.Models2;
+﻿using ChatApplicationServer.Models;
 
 namespace ChatApplicationServer.DTO
 {

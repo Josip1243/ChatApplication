@@ -6,9 +6,9 @@
         </button>
     </div>
     <div class="chat-body" #chatBody (scroll)="onScroll()">
-        <div *ngIf="true" class="more-button-wrapper">
+        <!-- <div *ngIf="true" class="more-button-wrapper">
             <button mat-button>Ucitaj vise...</button>
-        </div>
+        </div> -->
 
         <div *ngFor="let msg of chatRoom.messages; let i = index">
             <div class="message" [ngClass]="msg.username == username ? 'message-user' : 'message-other'">

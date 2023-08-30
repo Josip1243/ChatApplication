@@ -1,14 +1,13 @@
 ﻿using ChatApplicationServer.DTO;
 using ChatApplicationServer.HubConfig;
 using ChatApplicationServer.Models;
-using ChatApplicationServer.Models2;
 using ChatApplicationServer.Repository;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Messaging;
 using Optional.Collections;
 using Optional.Unsafe;
 using System.Security.Claims;
-using Message = ChatApplicationServer.Models2.Message;
+using Message = ChatApplicationServer.Models.Message;
 
 namespace ChatApplicationServer.Services
 {
