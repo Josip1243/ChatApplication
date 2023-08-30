@@ -75,13 +75,22 @@ namespace ChatApplicationServer.Repository
 
         public void AddMessage(MessageDTO messageDTO)
         {
-            _appContext.Messages.Add(new Message()
+            var newMessage = new Message()
             {
                 ChatId = messageDTO.ChatId,
                 Content = messageDTO.Content,
                 SentAt = messageDTO.SentAt,
                 UserId = messageDTO.UserId,
                 Username = messageDTO.Username,
+            };
+            _appContext.Messages.Add(newMessage);
+            _appContext.SaveChanges();
+
+            _appContext.MessagesChatRooms.Add(new MessagesChatRoom()
+            {
+                ChatRoomId = messageDTO.ChatId,
+                MessageId = newMessage.Id,
+
             });
             _appContext.SaveChanges();
         }
