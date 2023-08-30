@@ -26,7 +26,6 @@ namespace ChatApplicationServer.Services
 
             connectionRepository.AddConnection(newConnection);
 
-            // Uncomment when using DB
             //await context.Connections.AddAsync(connection);
             //await context.SaveChangesAsync();
         }

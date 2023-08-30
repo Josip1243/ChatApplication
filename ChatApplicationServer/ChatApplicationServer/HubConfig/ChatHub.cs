@@ -6,6 +6,8 @@ using ChatApplicationServer.Services;
 using Microsoft.AspNet.SignalR.Messaging;
 using Microsoft.AspNetCore.SignalR;
 using Optional.Unsafe;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
 namespace ChatApplicationServer.HubConfig
@@ -25,17 +27,46 @@ namespace ChatApplicationServer.HubConfig
             _userService = userService;
         }
 
-        public async Task askServer(int userId)
+        // Method for establishing connection
+        public async Task connect(int userId)
+        {
+            var signalrConnectionId = this.Context.ConnectionId;
+            var connections = _connectionService.GetConnections();
+            var connection = _connectionService.GetConnections().FirstOrDefault(c => c.SignalRid == signalrConnectionId);
+            var chatRoomIds = _chatRepositoryMock.GetUserChats(userId).Select(uc => uc.ChatRoomId).ToList();
+            List<string> connectionsToSendTo = new List<string>();
+
+            foreach (var chatRoomId in chatRoomIds)
+            {
+                var user = _chatRepositoryMock.GetChatUsers(chatRoomId).FirstOrDefault(u => u.Id != userId);
+                var tempConnection = connections.FirstOrDefault(c => c.UserId == user.Id);
+
+                if (tempConnection != null)
+                {
+                    var tempConnectionId = tempConnection.SignalRid;
+                    connectionsToSendTo.Add(tempConnectionId);
+                }
+            }
+
+            var existingConnections = connections.Where(c => c.UserId == userId).ToList();
+            foreach (var existingConnection in existingConnections)
+            {
+                _connectionService.RemoveConnection(existingConnection.SignalRid);
+            }
+            _connectionService.AddConnection(userId, signalrConnectionId);
+
+            await Clients.Client(this.Context.ConnectionId).SendAsync("connectListener", "Connection added!");
+            await Clients.Clients(connectionsToSendTo).SendAsync("onlineStatusChange");
+        }
+        public async override Task OnConnectedAsync()
         {
             var signalrConnectionId = this.Context.ConnectionId;
 
-            _connectionService.AddConnection(userId, signalrConnectionId);
-
-            await Clients.Client(this.Context.ConnectionId).SendAsync("askServerListener", "Connection added!");
+            await base.OnConnectedAsync();
         }
 
 
-        // Implement trigger for adding chat
+        // Triggers on adding chat
         public async Task addChat(string currentUsername, string targetedUsername)
         {
             var currentUser = _userService.GetUser(currentUsername).ValueOrDefault();
@@ -50,8 +81,12 @@ namespace ChatApplicationServer.HubConfig
             await Clients.Client(this.Context.ConnectionId).SendAsync("addChatListener");
         }
 
-
+        // Disconnecting logic and also onlineStatus refresher
         public async Task disconnect()
+        {
+            await OnDisconnectedAsync(null);
+        }
+        public async override Task OnDisconnectedAsync(Exception? exception)
         {
             var signalrConnectionId = this.Context.ConnectionId;
             var connections = _connectionService.GetConnections();
@@ -76,12 +111,13 @@ namespace ChatApplicationServer.HubConfig
             _connectionService.RemoveConnection(signalrConnectionId);
             await Clients.Client(Context.ConnectionId).SendAsync("disconnect", "Connection removed!");
             await Clients.Clients(connectionsToSendTo).SendAsync("onlineStatusChange");
+
+            await base.OnDisconnectedAsync(exception);
         }
 
         public async Task sendMessage(MessageDTO messageDTO)
         {
             _chatService.AddMessage(messageDTO);
-            //var chatRoom = _chatService.GetChat(messageDTO.ChatId);
             var chatUsers = _chatService.GetChatUsers(messageDTO.ChatId);
 
             foreach (var user in chatUsers)

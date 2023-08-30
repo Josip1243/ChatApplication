@@ -4,7 +4,6 @@ import {
   HubConnection,
   HubConnectionBuilder,
 } from '@microsoft/signalr';
-import { AuthService } from './auth.service';
 import { ChatService } from './chat.service';
 import { MessageDTO } from 'src/app/shared/models/messageDTO';
 import { SnackbarService } from './snackbar.service';
@@ -35,9 +34,11 @@ export class SignalrService {
       .then(() => {
         console.log('Hub connection started.');
       })
-      .catch((err) =>
-        console.log('Error while establishing connection: ' + err)
-      );
+      .catch((err) => console.log('Error while connecting to server: ' + err));
+
+    this.hubConnection.onclose((error) => {
+      console.log('SignalR connection closed: ', error);
+    });
   };
 
   stopConnection() {
@@ -50,12 +51,12 @@ export class SignalrService {
 
   askServer(userId: number) {
     this.hubConnection
-      .invoke('askServer', userId)
+      .invoke('connect', userId)
       .catch(() => console.log('Error while asking server.'));
   }
 
   askServerListener() {
-    this.hubConnection.on('askServerListener', (msg) => {
+    this.hubConnection.on('connectListener', (msg) => {
       console.log(msg);
     });
   }
@@ -77,7 +78,6 @@ export class SignalrService {
   }
   onlineStatusListener() {
     this.hubConnection.on('onlineStatusChange', () => {
-      debugger;
       this.chatService.refreshChats();
     });
   }
