@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ChatApplicationServer.HubConfig;
-using ChatApplicationServer.Models2;
+using ChatApplicationServer.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

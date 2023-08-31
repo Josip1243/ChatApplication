@@ -81,6 +81,7 @@ namespace ChatApplicationServer.Repository
                 SentAt = messageDTO.SentAt,
                 UserId = messageDTO.UserId,
                 Username = messageDTO.Username,
+                InitializationVector = messageDTO.InitializationVector
             };
             _appContext.Messages.Add(newMessage);
             _appContext.SaveChanges();

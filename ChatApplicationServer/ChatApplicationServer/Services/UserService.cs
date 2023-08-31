@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using ChatApplicationServer.DTO;
-using ChatApplicationServer.Models2;
+using ChatApplicationServer.Models;
 using ChatApplicationServer.Repository;
 using Optional;
 using System.Security.Claims;
@@ -22,7 +22,7 @@ namespace ChatApplicationServer.Services
             // Uncoment when using DB
             //this.context = context;
             _userRepository = userRepository;
-            _mapper = MapperConfig.InitializeAutoMapper();
+            //_mapper = MapperConfig.InitializeAutoMapper();
             _httpContextAccessor = httpContextAccessor;
         }
 

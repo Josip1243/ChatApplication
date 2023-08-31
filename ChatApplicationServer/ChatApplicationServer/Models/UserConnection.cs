@@ -1,4 +1,4 @@
-﻿namespace ChatApplicationServer.Models2
+﻿namespace ChatApplicationServer.Models
 {
     public class UserConnection
     {

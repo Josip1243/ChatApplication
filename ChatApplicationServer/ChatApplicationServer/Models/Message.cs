@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ChatApplicationServer.Models2;
+namespace ChatApplicationServer.Models;
 
 public partial class Message
 {
@@ -16,6 +16,8 @@ public partial class Message
     public DateTime SentAt { get; set; }
 
     public string Content { get; set; } = null!;
+    public byte[] InitializationVector { get; set; }
+
 
     public virtual ChatRoom Chat { get; set; } = null!;
 

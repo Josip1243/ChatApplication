@@ -1,6 +1,6 @@
 ﻿using Azure.Core;
 using ChatApplicationServer.DTO;
-using ChatApplicationServer.Models2;
+using ChatApplicationServer.Models;
 using ChatApplicationServer.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -32,7 +32,17 @@ namespace ChatApplicationServer.Services
                 PasswordSalt = passwordSalt,
             };
 
-            return _userRepositoryMock.RegisterUser(user);
+            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
+            {
+                // Get the public and private key
+                string publicKey = rsa.ToXmlString(false); // Public key
+                string privateKey = rsa.ToXmlString(true); // Private key
+
+                user.PublicKey = publicKey;
+                user.PrivateKey = privateKey;
+            }
+
+                return _userRepositoryMock.RegisterUser(user);
         }
 
         public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)

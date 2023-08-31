@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ChatApplicationServer.Models2;
+namespace ChatApplicationServer.Models;
 
 public partial class Connection
 {

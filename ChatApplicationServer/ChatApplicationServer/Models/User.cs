@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ChatApplicationServer.Models2;
+namespace ChatApplicationServer.Models;
 
 public partial class User
 {
@@ -18,6 +18,10 @@ public partial class User
     public DateTime? TokenCreated { get; set; }
 
     public DateTime? TokenExpires { get; set; }
+
+    public string PrivateKey { get; set; }
+
+    public string PublicKey { get; set; }
 
     public virtual ICollection<Connection> Connections { get; } = new List<Connection>();
 

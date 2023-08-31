@@ -6,7 +6,10 @@ using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Messaging;
 using Optional.Collections;
 using Optional.Unsafe;
+using System.Configuration;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using Message = ChatApplicationServer.Models.Message;
 
 namespace ChatApplicationServer.Services
@@ -16,12 +19,17 @@ namespace ChatApplicationServer.Services
         private readonly ChatRepositoryMock _chatRepositoryMock;
         private readonly UserRepositoryMock _userRepositoryMock;
         private readonly ConnectionService _connectionService;
+        private readonly IConfiguration _configuration;
+        private readonly ChatAppContext _appContext;
 
-        public ChatService(ChatRepositoryMock chatRepositoryMock, UserRepositoryMock userRepositoryMock, ConnectionService connectionService)
+        public ChatService(ChatRepositoryMock chatRepositoryMock, UserRepositoryMock userRepositoryMock, ConnectionService connectionService, 
+            IConfiguration configuration, ChatAppContext appContext)
         {
             _chatRepositoryMock = chatRepositoryMock;
             _userRepositoryMock = userRepositoryMock;
             _connectionService = connectionService;
+            _configuration = configuration;
+            _appContext = appContext;
         }
 
         public IEnumerable<ChatNameDTO> GetAllChats(string username)
@@ -35,9 +43,9 @@ namespace ChatApplicationServer.Services
 
         public ChatRoomDTO GetChat(int chatId, string currentUsername)
         {
-            var chat = _chatRepositoryMock.GetChat(chatId, currentUsername);
+            var chat = _appContext.ChatRooms.FirstOrDefault(cr => cr.Id == chatId);
             if (chat != null)
-                return chat;
+                return mapToChatRoomDTO(chat, currentUsername);
             return null;
         }
 
@@ -48,8 +56,22 @@ namespace ChatApplicationServer.Services
 
         public void AddMessage(MessageDTO messageDTO)
         {
+            var keyString = _configuration.GetSection("Messages:SecretKey").Value;
+            byte[] key = Encoding.UTF8.GetBytes(keyString);
+
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.GenerateIV();
+                messageDTO.InitializationVector = aesAlg.IV;
+
+                // Encrypt the text and convert to base64-encoded string
+                string encryptedBase64 = EncryptStringToBase64(messageDTO.Content, key, messageDTO.InitializationVector);
+                messageDTO.Content = encryptedBase64;
+            }
+
             _chatRepositoryMock.AddMessage(messageDTO);
         }
+
         public ChatRoomDTO AddChat(string currentUser, string username)
         {
             var user1Optional = _userRepositoryMock.GetUser(currentUser);
@@ -93,31 +115,15 @@ namespace ChatApplicationServer.Services
         {
             var chatName = chatRoom.Name.Replace(currentUsername, "").Trim();
             var messages = _chatRepositoryMock.GetAllMessages(chatRoom.Id).ToList();
+            var keyString = _configuration.GetSection("Messages:SecretKey").Value;
+            byte[] key = Encoding.UTF8.GetBytes(keyString);
+
+            foreach (var message in messages)
+            {
+                message.Content = DecryptBase64ToString(message.Content, key, message.InitializationVector);
+            }
             
             return new ChatRoomDTO() { Id = chatRoom.Id, Name = chatName, Messages = messages };
-        }
-
-        private List<MessageDTO> mapToMessageDTO(List<Message> messages)
-        {
-            List<MessageDTO> result = new List<MessageDTO>();
-
-            if(messages is not null)
-            {
-                foreach (var message in messages)
-                {
-
-                    result.Add(new MessageDTO()
-                    {
-                        Id = message.Id,
-                        ChatId = message.ChatId,
-                        UserId = message.UserId,
-                        Username = message.Username,
-                        Content = message.Content,
-                        SentAt = message.SentAt
-                    });
-                }
-            }
-            return result;
         }
 
         private IEnumerable<ChatNameDTO> mapToChatNameDTO(User user, IEnumerable<ChatRoom> chatRooms, IEnumerable<UsersChatRoom> userChats)
@@ -142,6 +148,54 @@ namespace ChatApplicationServer.Services
             }
 
             return chatDTOs;
+        }
+
+        static string EncryptStringToBase64(string plainText, byte[] key, byte[] iv)
+        {
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = key;
+                aesAlg.IV = iv;
+
+                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+                using (MemoryStream msEncrypt = new MemoryStream())
+                {
+                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                    {
+                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                        {
+                            swEncrypt.Write(plainText);
+                        }
+                    }
+                    byte[] encryptedBytes = msEncrypt.ToArray();
+                    return Convert.ToBase64String(encryptedBytes);
+                }
+            }
+        }
+
+        public static string DecryptBase64ToString(string encryptedBase64, byte[] key, byte[] iv)
+        {
+            byte[] encryptedBytes = Convert.FromBase64String(encryptedBase64);
+
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = key;
+                aesAlg.IV = iv;
+
+                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+                using (MemoryStream msDecrypt = new MemoryStream(encryptedBytes))
+                {
+                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                    {
+                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                        {
+                            return srDecrypt.ReadToEnd();
+                        }
+                    }
+                }
+            }
         }
     }
 }

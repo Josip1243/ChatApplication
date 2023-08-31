@@ -1,5 +1,5 @@
 ﻿using ChatApplicationServer.DTO;
-using ChatApplicationServer.Models2;
+using ChatApplicationServer.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 

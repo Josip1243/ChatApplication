@@ -8,6 +8,7 @@ using Optional.Unsafe;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
+using System.Text;
 
 namespace ChatApplicationServer.HubConfig
 {
@@ -17,13 +18,15 @@ namespace ChatApplicationServer.HubConfig
         private readonly ChatService _chatService;
         private readonly ChatRepositoryMock _chatRepositoryMock;
         private readonly IUserService _userService;
+        private readonly IConfiguration _configuration;
 
-        public ChatHub(ConnectionService connectionService, ChatService chatService, ChatRepositoryMock chatRepositoryMock, IUserService userService)
+        public ChatHub(ConnectionService connectionService, ChatService chatService, ChatRepositoryMock chatRepositoryMock, IUserService userService, IConfiguration configuration)
         {
             _connectionService = connectionService;
             _chatService = chatService;
             _chatRepositoryMock = chatRepositoryMock;
             _userService = userService;
+            _configuration = configuration;
         }
 
         // Method for establishing connection
@@ -125,6 +128,10 @@ namespace ChatApplicationServer.HubConfig
             }
             var connections = _connectionService.GetConnections(chatUsers.Select(u => u.Id)).Select(con => con.SignalRid);
 
+            var keyString = _configuration.GetSection("Messages:SecretKey").Value;
+            byte[] key = Encoding.UTF8.GetBytes(keyString);
+
+            messageDTO.Content = ChatService.DecryptBase64ToString(messageDTO.Content, key, messageDTO.InitializationVector);
             await Clients.Clients(connections).SendAsync("receiveMessage", messageDTO);
         }
     }

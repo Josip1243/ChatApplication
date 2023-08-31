@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace ChatApplicationServer.Models2
+namespace ChatApplicationServer.Models
 {
     public class RefreshToken
     {
