@@ -7,9 +7,9 @@ namespace ChatApplicationServer.Controllers
     [Controller]
     public class ConnectionController : Controller
     {
-        private ConnectionsRepositoryMock _connectionsRepository;
+        private IConnectionsRepository _connectionsRepository;
 
-        public ConnectionController(ConnectionsRepositoryMock connectionsRepository)
+        public ConnectionController(IConnectionsRepository connectionsRepository)
         {
             _connectionsRepository = connectionsRepository;
         }

@@ -20,21 +20,21 @@ namespace ChatApplicationServer.Controllers
         private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
-        private readonly UserRepositoryMock _userRepositoryMock;
-        private readonly ConnectionService _connectionService;
+        private readonly IUserRepository _userRepository;
+        private readonly IConnectionService _connectionService;
 
-        public AuthController(IConfiguration configuration, IUserService userService, IAuthService authService, UserRepositoryMock userRepositoryMock)
+        public AuthController(IConfiguration configuration, IUserService userService, IAuthService authService, IUserRepository userRepository)
         {
             _configuration = configuration;
             _userService = userService;
             _authService = authService;
-            _userRepositoryMock = userRepositoryMock;
+            _userRepository = userRepository;
         }
 
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserCredentials request)
         {
-            if (_userRepositoryMock.GetUser(request.Username).HasValue)
+            if (_userRepository.GetUser(request.Username).HasValue)
             {
                 return BadRequest("User already exists.");
             }
@@ -80,7 +80,7 @@ namespace ChatApplicationServer.Controllers
             var refreshToken = tokenDto.RefreshToken;
             var principle = _authService.GetPrincipleFromToken(accessToken);
             var username = principle.Identity.Name;
-            var user = _userRepositoryMock.GetUser(username).ValueOrFailure();
+            var user = _userRepository.GetUser(username).ValueOrFailure();
 
             if (user is null || user.RefreshToken != refreshToken || user.TokenExpires <= DateTime.Now)
                 return BadRequest("Invalid Request");

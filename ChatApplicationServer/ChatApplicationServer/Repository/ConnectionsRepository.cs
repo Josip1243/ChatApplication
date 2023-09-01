@@ -3,11 +3,11 @@ using System;
 
 namespace ChatApplicationServer.Repository
 {
-    public class ConnectionsRepositoryMock
+    public class ConnectionsRepository : IConnectionsRepository
     {
         private ChatAppContext _appContext;
 
-        public ConnectionsRepositoryMock(ChatAppContext appContext)
+        public ConnectionsRepository(ChatAppContext appContext)
         {
             _appContext = appContext;
         }

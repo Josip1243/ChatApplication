@@ -4,11 +4,11 @@ using Optional;
 
 namespace ChatApplicationServer.Repository
 {
-    public class UserRepositoryMock
+    public class UserRepository : IUserRepository
     {
         private ChatAppContext _appContext;
 
-        public UserRepositoryMock(ChatAppContext appContext)
+        public UserRepository(ChatAppContext appContext)
         {
             _appContext = appContext;
         }

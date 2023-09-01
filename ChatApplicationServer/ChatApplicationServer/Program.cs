@@ -47,12 +47,12 @@ builder.Services.AddControllersWithViews()
 );
 
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ChatService, ChatService>();
-builder.Services.AddScoped<ConnectionService, ConnectionService>();
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IConnectionService, ConnectionService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<UserRepositoryMock, UserRepositoryMock>();
-builder.Services.AddScoped<ChatRepositoryMock, ChatRepositoryMock>();
-builder.Services.AddScoped<ConnectionsRepositoryMock, ConnectionsRepositoryMock>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IConnectionsRepository, ConnectionsRepository>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHostedService<DeleteChatsService>();
 

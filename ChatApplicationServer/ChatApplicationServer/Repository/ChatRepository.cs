@@ -7,11 +7,11 @@ using System.Runtime.Intrinsics.X86;
 
 namespace ChatApplicationServer.Repository
 {
-    public class ChatRepositoryMock
+    public class ChatRepository : IChatRepository
     {
         private ChatAppContext _appContext;
 
-        public ChatRepositoryMock(ChatAppContext appContext)
+        public ChatRepository(ChatAppContext appContext)
         {
             _appContext = appContext;
         }
@@ -24,22 +24,10 @@ namespace ChatApplicationServer.Repository
             return chats;
         }
 
-        public ChatRoomDTO GetChat(int chatId, string currentUsername)
+        public ChatRoom GetChat(int chatId, string currentUsername)
         {
             var chat = _appContext.ChatRooms.First(x => x.Id == chatId);
-            var allMessages = _appContext.Messages.Where(x => x.ChatId == chatId).ToList();
-            return mapChatRoomToChatRoomDTO(chat, allMessages, currentUsername);
-        }
-        private ChatRoomDTO mapChatRoomToChatRoomDTO(ChatRoom chatRoom, List<Message> allMessages, string currentUsername)
-        {
-            var chatRoomDTO = new ChatRoomDTO()
-            {
-                Id = chatRoom.Id,
-                Name = chatRoom.Name.Replace(currentUsername, "").Trim(),
-                Messages = allMessages
-            };
-
-            return chatRoomDTO;
+            return chat;
         }
 
         public IEnumerable<User> GetChatUsers(int chatId)
@@ -116,7 +104,7 @@ namespace ChatApplicationServer.Repository
                 ChatRoomId = chatId,
                 UserId = user1.Id,
             });
-            _appContext.UsersChatRooms.Add(new UsersChatRoom()      
+            _appContext.UsersChatRooms.Add(new UsersChatRoom()
             {
                 ChatRoomId = chatId,
                 UserId = user2.Id,
@@ -125,7 +113,7 @@ namespace ChatApplicationServer.Repository
 
             _appContext.SaveChanges();
             return newChat;
-        } 
+        }
 
         public void AddUserChat(int chatRoomId, int userId)
         {
@@ -161,7 +149,7 @@ namespace ChatApplicationServer.Repository
 
             var userChats = _appContext.UsersChatRooms.Where(usrCh => usrCh.ChatRoomId == chatId).Select(uc => uc.Deleted).ToList();
             var delete = true;
-            foreach(var deleted in userChats)
+            foreach (var deleted in userChats)
             {
                 if (!deleted)
                 {

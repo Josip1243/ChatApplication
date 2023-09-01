@@ -5,48 +5,39 @@ using System.ComponentModel;
 
 namespace ChatApplicationServer.Services
 {
-    public class ConnectionService // : IConnectionService
+    public class ConnectionService : IConnectionService
     {
-        // Uncoment when using DB
-        //private ChatContext context;
+        private IConnectionsRepository _connectionRepository;
 
-        // For testing only (before DB setup)
-        private ConnectionsRepositoryMock connectionRepository;
-
-        public ConnectionService(/*ChatContext context,*/ ConnectionsRepositoryMock connectionRepository)
+        public ConnectionService(IConnectionsRepository connectionRepository)
         {
-            //this.context = context;
-            this.connectionRepository = connectionRepository;
+            this._connectionRepository = connectionRepository;
         }
 
         public async void AddConnection(int userId, string signalrConnectionId)
         {
             var newConnection = new Connection() { UserId = userId, SignalRid = signalrConnectionId, TimeStamp = DateTime.Now };
-
-            connectionRepository.AddConnection(newConnection);
-
-            //await context.Connections.AddAsync(connection);
-            //await context.SaveChangesAsync();
+            _connectionRepository.AddConnection(newConnection);
         }
 
         public async void RemoveConnection(string connectionId)
         {
-            var tempConn = connectionRepository.GetConnections().ToList().FirstOrDefault(conn => conn.SignalRid == connectionId);
-            connectionRepository.RemoveConnection(tempConn);
+            var tempConn = _connectionRepository.GetConnections().ToList().FirstOrDefault(conn => conn.SignalRid == connectionId);
+            _connectionRepository.RemoveConnection(tempConn);
         }
 
         public async Task<Connection> GetConnection(int userId, string connectionId)
         {
-            return connectionRepository.GetConnections().FirstOrDefault(conn => conn.UserId == userId && conn.SignalRid == connectionId);
+            return _connectionRepository.GetConnections().FirstOrDefault(conn => conn.UserId == userId && conn.SignalRid == connectionId);
         }
 
         public List<Connection> GetConnections()
         {
-            return connectionRepository.GetConnections();
+            return _connectionRepository.GetConnections();
         }
         public List<Connection> GetConnections(IEnumerable<int> userIds)
         {
-            return connectionRepository.GetConnections().Where(conn => userIds.Contains(conn.UserId)).ToList();
+            return _connectionRepository.GetConnections().Where(conn => userIds.Contains(conn.UserId)).ToList();
         }
     }
 }

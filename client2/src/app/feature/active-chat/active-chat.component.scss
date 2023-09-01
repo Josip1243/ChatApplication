@@ -97,6 +97,9 @@
     // border-top-left-radius: 10px;
     /* border-bottom-left-radius: 10px; */
     position: relative;
+    text-align: left;
+    overflow-wrap: break-word;
+    word-break: break-all;
 }
 .message-user .message-text {
     border-bottom-left-radius: 0px;

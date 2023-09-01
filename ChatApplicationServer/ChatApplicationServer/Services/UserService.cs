@@ -9,29 +9,18 @@ namespace ChatApplicationServer.Services
 {
     public class UserService : IUserService
     {
-        // Uncoment when using DB
-        //private ChatContext context;
-
-        // For testing only (before DB setup)
-        private UserRepositoryMock _userRepository;
+        private IUserRepository _userRepository;
         private Mapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserService(/*ChatContext context,*/ UserRepositoryMock userRepository, IHttpContextAccessor httpContextAccessor)
+        public UserService(IUserRepository userRepository, IHttpContextAccessor httpContextAccessor)
         {
-            // Uncoment when using DB
-            //this.context = context;
             _userRepository = userRepository;
-            //_mapper = MapperConfig.InitializeAutoMapper();
             _httpContextAccessor = httpContextAccessor;
         }
 
-
         public Option<User> GetUser(UserCredentials user)
         {
-            // Retrieves user from DB
-            // Uncomment when using DB
-            //return Option.Some(context.Users.SingleOrDefault(user => user.Username == userCredentials.Username && user.Password == userCredentials.Password));
             return _userRepository.GetUser(user.Username);
         }
         public Option<User> GetUser(string username)

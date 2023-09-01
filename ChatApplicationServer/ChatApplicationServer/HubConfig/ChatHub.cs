@@ -14,17 +14,17 @@ namespace ChatApplicationServer.HubConfig
 {
     public class ChatHub : Hub
     {
-        private readonly ConnectionService _connectionService;
-        private readonly ChatService _chatService;
-        private readonly ChatRepositoryMock _chatRepositoryMock;
+        private readonly IConnectionService _connectionService;
+        private readonly IChatService _chatService;
+        private readonly IChatRepository _chatRepository;
         private readonly IUserService _userService;
         private readonly IConfiguration _configuration;
 
-        public ChatHub(ConnectionService connectionService, ChatService chatService, ChatRepositoryMock chatRepositoryMock, IUserService userService, IConfiguration configuration)
+        public ChatHub(IConnectionService connectionService, IChatService chatService, IChatRepository chatRepository, IUserService userService, IConfiguration configuration)
         {
             _connectionService = connectionService;
             _chatService = chatService;
-            _chatRepositoryMock = chatRepositoryMock;
+            _chatRepository = chatRepository;
             _userService = userService;
             _configuration = configuration;
         }
@@ -35,12 +35,12 @@ namespace ChatApplicationServer.HubConfig
             var signalrConnectionId = this.Context.ConnectionId;
             var connections = _connectionService.GetConnections();
             var connection = _connectionService.GetConnections().FirstOrDefault(c => c.SignalRid == signalrConnectionId);
-            var chatRoomIds = _chatRepositoryMock.GetUserChats(userId).Select(uc => uc.ChatRoomId).ToList();
+            var chatRoomIds = _chatRepository.GetUserChats(userId).Select(uc => uc.ChatRoomId).ToList();
             List<string> connectionsToSendTo = new List<string>();
 
             foreach (var chatRoomId in chatRoomIds)
             {
-                var user = _chatRepositoryMock.GetChatUsers(chatRoomId).FirstOrDefault(u => u.Id != userId);
+                var user = _chatRepository.GetChatUsers(chatRoomId).FirstOrDefault(u => u.Id != userId);
                 var tempConnection = connections.FirstOrDefault(c => c.UserId == user.Id);
 
                 if (tempConnection != null)
@@ -95,13 +95,13 @@ namespace ChatApplicationServer.HubConfig
             var connection = _connectionService.GetConnections().FirstOrDefault(c => c.SignalRid == signalrConnectionId);
             var userId = connection.UserId;
 
-            var chatRoomIds = _chatRepositoryMock.GetUserChats(userId).Select(uc => uc.ChatRoomId).ToList();
+            var chatRoomIds = _chatRepository.GetUserChats(userId).Select(uc => uc.ChatRoomId).ToList();
 
             List<string> connectionsToSendTo = new List<string>();
 
             foreach (var chatRoomId in chatRoomIds)
             {
-                var user = _chatRepositoryMock.GetChatUsers(chatRoomId).FirstOrDefault(u => u.Id != userId);
+                var user = _chatRepository.GetChatUsers(chatRoomId).FirstOrDefault(u => u.Id != userId);
                 var tempConnection = connections.FirstOrDefault(c => c.UserId == user.Id);
 
                 if (tempConnection != null)
@@ -124,7 +124,7 @@ namespace ChatApplicationServer.HubConfig
 
             foreach (var user in chatUsers)
             {
-                _chatRepositoryMock.AddUserChat(messageDTO.ChatId, user.Id);
+                _chatRepository.AddUserChat(messageDTO.ChatId, user.Id);
             }
             var connections = _connectionService.GetConnections(chatUsers.Select(u => u.Id)).Select(con => con.SignalRid);
 

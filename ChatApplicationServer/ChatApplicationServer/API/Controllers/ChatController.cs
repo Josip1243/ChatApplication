@@ -12,18 +12,16 @@ namespace ChatApplicationServer.Controllers
     [ApiController]
     public class ChatController : Controller
     {
-        private readonly UserRepositoryMock _userRepositoryMock;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ChatService _chatService;
-        private readonly ChatRepositoryMock _chatRepositoryMock;
+        private readonly IChatService _chatService;
+        private readonly IChatRepository _chatRepository;
 
-        public ChatController(UserRepositoryMock userRepositoryMock, 
-                              IHttpContextAccessor httpContextAccessor, ChatService chatService, ChatRepositoryMock chatRepositoryMock)
+        public ChatController(IHttpContextAccessor httpContextAccessor, IChatService chatService, 
+            IChatRepository chatRepository)
         {
-            _userRepositoryMock = userRepositoryMock;
             _httpContextAccessor = httpContextAccessor;
             _chatService = chatService;
-            _chatRepositoryMock = chatRepositoryMock;
+            _chatRepository = chatRepository;
         }
 
         [HttpGet("getAllChats"), Authorize]
@@ -68,7 +66,7 @@ namespace ChatApplicationServer.Controllers
         public async Task<ActionResult> RemoveChat(int chatId)
         {
             var userId = int.Parse(_httpContextAccessor.HttpContext.User.FindFirstValue("Id"));
-            _chatRepositoryMock.RemoveChat(chatId, userId);
+            _chatRepository.RemoveChat(chatId, userId);
 
             return Ok();
         }

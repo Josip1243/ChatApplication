@@ -14,12 +14,12 @@ namespace ChatApplicationServer.Services
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
-        private readonly UserRepositoryMock _userRepositoryMock;
+        private readonly IUserRepository _userRepository;
 
-        public AuthService(IConfiguration configuration, UserRepositoryMock userRepositoryMock)
+        public AuthService(IConfiguration configuration, IUserRepository userRepositoryMock)
         {
             _configuration = configuration;
-            _userRepositoryMock = userRepositoryMock;
+            _userRepository = userRepositoryMock;
         }
 
         public bool RegisterUser(UserCredentials request)
@@ -42,7 +42,7 @@ namespace ChatApplicationServer.Services
                 user.PrivateKey = privateKey;
             }
 
-                return _userRepositoryMock.RegisterUser(user);
+                return _userRepository.RegisterUser(user);
         }
 
         public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
@@ -99,7 +99,7 @@ namespace ChatApplicationServer.Services
             user.TokenCreated = refreshToken.Created;
             user.TokenExpires = refreshToken.Expires;
 
-            _userRepositoryMock.UpdateUser(user);
+            _userRepository.UpdateUser(user);
 
             return refreshToken;
         }
