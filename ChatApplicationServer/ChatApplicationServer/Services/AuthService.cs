@@ -32,17 +32,7 @@ namespace ChatApplicationServer.Services
                 PasswordSalt = passwordSalt,
             };
 
-            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
-            {
-                // Get the public and private key
-                string publicKey = rsa.ToXmlString(false); // Public key
-                string privateKey = rsa.ToXmlString(true); // Private key
-
-                user.PublicKey = publicKey;
-                user.PrivateKey = privateKey;
-            }
-
-                return _userRepository.RegisterUser(user);
+            return _userRepository.RegisterUser(user);
         }
 
         public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)

@@ -19,10 +19,6 @@ public partial class User
 
     public DateTime? TokenExpires { get; set; }
 
-    public string PrivateKey { get; set; }
-
-    public string PublicKey { get; set; }
-
     public virtual ICollection<Connection> Connections { get; } = new List<Connection>();
 
     public virtual ICollection<Message> Messages { get; } = new List<Message>();
