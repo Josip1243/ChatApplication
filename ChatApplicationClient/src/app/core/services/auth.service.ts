@@ -1,71 +1,97 @@
-import { SignalrService } from 'src/app/core/services/signalr.service';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { HubConnectionState } from '@microsoft/signalr';
-import { User } from '../../shared/models/user.model';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { User } from 'src/app/shared/models/user.model';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { TokenDTO } from 'src/app/shared/models/tokenDTO.model';
+import { SignalrService } from './signalr.service';
 
-
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class AuthService {
-    constructor(public signalrService: SignalrService, public router: Router) {
+  baseUrl = 'http://localhost:5220/';
 
-          let tempPersonId = localStorage.getItem("personId");
-          if (tempPersonId) {
-              if (this.signalrService.hubConnection?.state == HubConnectionState.Connected) { //if already connected
-                this.reauthMeListener();
-                this.reauthMe(tempPersonId);
-              }
-              // else {
-              //   this.signalrService.ssObs().subscribe((obj: any) => {
-              //       if (obj.type == "HubConnStarted") {
-              //         this.reauthMeListener();
-              //         this.reauthMe(tempPersonId);
-              //       }
-              //   });
-              // }
-          }
-      }
+  private logged = new BehaviorSubject<boolean>(false);
+  isLogged = this.logged.asObservable();
+  private usernameBehaviorSubject = new BehaviorSubject<string>('');
+  private userIdBehaviorSubject = new BehaviorSubject<number>(-1);
+  username = this.usernameBehaviorSubject.asObservable();
+  userId = this.userIdBehaviorSubject.asObservable();
 
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private signalrService: SignalrService
+  ) {}
 
-    public isAuthenticated: boolean = false;
+  public register(user: User): Observable<any> {
+    return this.http.post(this.baseUrl + 'api/auth/register', user);
+  }
 
+  public login(user: User): Observable<any> {
+    return this.http.post<any>(this.baseUrl + 'api/auth/login', user).pipe(
+      tap(() => {
+        this.logged.next(true);
+      })
+    );
+  }
 
-    async authMe(person: string, pass: string) {
-      let personInfo = {userName: person, password: pass};
+  public logout(page: string) {
+    localStorage.clear();
+    this.logged.next(false);
+    this.signalrService.disconnect();
+    this.router.navigate([page]);
+  }
 
-      await this.signalrService.hubConnection.invoke("Authorize", personInfo)
-      .catch(err => console.error(err));
+  checkStatus() {
+    if (localStorage.getItem('token')) {
+      this.logged.next(true);
+    } else {
+      this.logged.next(false);
     }
 
-
-    authMeListenerSuccess() {
-      this.signalrService.hubConnection.on("authMeResponseSuccess", (user: User) => {
-        //4Tutorial
-        console.log(user);
-        this.signalrService.userData = {...user};
-        localStorage.setItem("personId", user.id.toString());
-        this.isAuthenticated = true;
-        this.signalrService.router.navigateByUrl("/home");
-      });
+    if (this.getAccessToken()) {
+      let token = this.decodedToken();
+      let username =
+        token['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+      let userId = Number(token['Id']);
+      this.usernameBehaviorSubject.next(username);
+      this.userIdBehaviorSubject.next(userId);
     }
+  }
 
-    authMeListenerFail() {
-      this.signalrService.hubConnection.on("authMeResponseFail", () => {
-      });
-    }
+  storeAccessToken(tokenValue: string) {
+    localStorage.setItem('token', tokenValue);
+  }
+  storeRefreshToken(tokenValue: string) {
+    localStorage.setItem('refreshToken', tokenValue);
+  }
 
-    async reauthMe(personId: string) {
-      await this.signalrService.hubConnection.invoke("reauthMe", personId)
-      .catch(err => console.error(err));
-    }
+  getAccessToken() {
+    return localStorage.getItem('token');
+  }
+  getRefreshToken() {
+    return localStorage.getItem('refreshToken');
+  }
 
-    reauthMeListener() {
-      this.signalrService.hubConnection.on("reauthMeResponse", (user: User) => {
-        //4Tutorial
-        console.log(user);
-        this.signalrService.userData = {...user}
-        this.isAuthenticated = true;
-        if (this.signalrService.router.url == "/auth") this.signalrService.router.navigateByUrl("/home");
-      });
-    }
+  decodedToken() {
+    const jwtHelper = new JwtHelperService();
+    const token = this.getAccessToken()!;
+    return jwtHelper.decodeToken(token);
+  }
+
+  public refreshToken(tokenDTO: TokenDTO): Observable<TokenDTO> {
+    return this.http.post<TokenDTO>(
+      this.baseUrl + 'api/auth/refresh-token',
+      tokenDTO
+    );
+  }
+
+  public getMe(): Observable<string> {
+    return this.http.get(this.baseUrl + 'api/auth/GetMe', {
+      responseType: 'text',
+    });
+  }
 }

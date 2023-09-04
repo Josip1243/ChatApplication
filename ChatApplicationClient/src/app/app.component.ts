@@ -1,36 +1,15 @@
-import { Router } from '@angular/router';
-import { SignalrService } from './core/services/signalr.service';
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { HubConnectionState } from '@microsoft/signalr/dist/esm/HubConnection';
+import { SignalrService } from './core/services/signalr.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  
-  constructor(public signalrService:SignalrService, public router: Router) {}
+  title = 'client';
 
-  ngOnInit(): void {
-    this.establishConnection(this.signalrService);
-  }
+  constructor() {}
 
-  maxRepetition: number = 0;
-
-  establishConnection(signalrService:SignalrService) {
-    this.maxRepetition = this.maxRepetition + 1;
-    signalrService.startConnection();
-
-    if(this.maxRepetition < 5){
-      setTimeout( () => {
-
-        if (signalrService.hubConnection.state === HubConnectionState.Connected) {
-          return;
-        }
-        this.establishConnection(signalrService);
-      }, this.maxRepetition*1000)
-    }
-  }
+  ngOnInit(): void {}
 }

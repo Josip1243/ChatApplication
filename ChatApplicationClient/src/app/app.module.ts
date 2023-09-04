@@ -3,28 +3,25 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HomeComponent } from './features/home/home.component';
-import { LoginComponent } from './features/login/login.component';
-import { NavigationComponent } from './shared/components/navigation/navigation.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
-import { RegisterComponent } from './features/register/register.component';
+import { httpInterceptorProviders } from './core/services/auth.interceptor';
+import { AuthGuard } from './core/services/auth.guard';
+import { NgToastModule } from 'ng-angular-popup';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    RegisterComponent,
-  ],
+  declarations: [AppComponent],
+  providers: [httpInterceptorProviders, AuthGuard],
+  bootstrap: [AppComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    BrowserAnimationsModule,
+    NavbarComponent,
     HttpClientModule,
-    FormsModule,
-    HomeComponent,
-    LoginComponent,
-    NavigationComponent,
+    MatSnackBarModule,
   ],
-  providers: [],
-  bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

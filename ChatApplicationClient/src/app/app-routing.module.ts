@@ -1,13 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { HomeComponent } from './features/home/home.component';
-import { LoginComponent } from './features/login/login.component';
 import { NgModule } from '@angular/core';
-import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
+import { LoginComponent } from './feature/login/login.component';
+import { RegisterComponent } from './feature/register/register.component';
+import { HomeComponent } from './feature/home/home.component';
 import { AuthGuard } from './core/services/auth.guard';
 
-
 const routes: Routes = [
-  
   {
     path: '', redirectTo: 'login', pathMatch: 'full'
   },
@@ -15,13 +13,11 @@ const routes: Routes = [
     path: 'login', component: LoginComponent
   },
   {
-    path: 'home', loadChildren: () => import('./features/home/home.component').then(m => m.HomeComponent),
-    canActivate: [AuthGuard]
+    path: 'register', component: RegisterComponent
   },
   {
-    path: '**', redirectTo: 'login', pathMatch: 'full'
+    path: 'home', component: HomeComponent, canActivate: [AuthGuard]
   }
-  
 ];
 
 @NgModule({
